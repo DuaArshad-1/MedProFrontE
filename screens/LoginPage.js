@@ -120,22 +120,23 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
-    try {
-      const res = await axios.post(`${BASE_URL}/users/login`, {
-        emailOrPhone: identifier,
-        password
-      });
-      const { token } = res.data;
-      await AsyncStorage.setItem('token', res.data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+    // try {
+    //   const res = await axios.post(${BASE_URL}/users/login, {
+    //     emailOrPhone: identifier,
+    //     password
+    //   });
+    //   const { token } = res.data;
+    //   await AsyncStorage.setItem('token', res.data.token);
+    //   await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
 
-      navigation.navigate("Profile");
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
+    //   navigation.navigate("Profile");
+    // } catch (err) {
+    //   console.error(err);
+    //   Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
 
-    }
-  };
+    // }
+    navigation.navigate('Profile');
+  };
 
   return (
     <View style={styles.container}>
@@ -172,9 +173,13 @@ const LoginScreen = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.forgot}>
-        <Text style={styles.forgotText}>Forgot Password?</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+  style={styles.forgot}
+  onPress={() => navigation.navigate('ForgotP')}
+>
+  <Text style={styles.forgotText}>Forgot Password?</Text>
+</TouchableOpacity>
+
 
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginText}>Login</Text>
@@ -184,7 +189,7 @@ const LoginScreen = () => {
         Don't have an account?{' '}
         <Text
           style={{ fontWeight: 'bold' }}
-          onPress={() => navigation.navigate('SignUp')}
+          onPress={() => navigation.navigate('Signup')}
         >
           Sign Up
         </Text>

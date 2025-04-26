@@ -13,7 +13,10 @@ import OrdersScreen from './screens/OrdersScreen';
 import HelpScreen from './screens/HelpScreen';
 import ReviewsScreen from './screens/ReviewsScreen';
 import ContactScreen from './screens/ContactScreen';
-
+import HomePage from './screens/HomePage';
+import MedicineCard from './screens/MedicineCard';
+import ForgotPassword from './screens/ForgotPassword';
+import SignupPage from './screens/SignupPage';
 
 
 const Stack = createStackNavigator();
@@ -37,9 +40,12 @@ const App = () => {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Orders" component={OrdersScreen} />
         <Stack.Screen name="Help" component={HelpScreen} />
+        <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="Reviews" component={ReviewsScreen} />
         <Stack.Screen name="Contact" component={ContactScreen} />
-
+        <Stack.Screen name="MedCard" component={MedicineCard}/>
+        <Stack.Screen name="ForgotP" component={ForgotPassword}/>
+        <Stack.Screen name="Signup" component={SignupPage}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
