@@ -114,7 +114,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
-const LoginScreen = () => {
+const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword]       = useState('');
   const navigation = useNavigation();
@@ -135,7 +135,11 @@ const LoginScreen = () => {
     //   Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
 
     // }
-    navigation.navigate('Profile');
+    // navigation.navigate('Profile');
+    navigation.navigate('Main', {
+      screen: 'Profile'
+    });
+    
   };
 
   return (
@@ -308,4 +312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default LoginPage;

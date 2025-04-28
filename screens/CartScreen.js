@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import BottomTabs from '../screens/BottomTabs'; // your consistent bottom bar
+// import BottomTabs from '../screens/BottomTabs'; // your consistent bottom bar
 import axios from 'axios';
+import MedImage from '../assets/medpro4.png'; 
+
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -17,28 +19,55 @@ const CartScreen = () => {
   }, []);
 
   const fetchCart = async () => {
-    try {
-      const res = await axios.get('http://localhost:3000/users/getCart', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCartItems(res.data.items);
-      calculateTotal(res.data.items);
-    } catch (error) {
-      console.error(error);
-    }
+    // try {
+    //   const res = await axios.get('http://localhost:3000/users/getCart', {
+    //     headers: { Authorization: `Bearer ${token}` },
+    //   });
+    //   setCartItems(res.data.items);
+    //   calculateTotal(res.data.items);
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    const Item = [
+      {
+        _id: '1',
+        name: 'Paracetamol',
+        price: 50,
+        quantity: 2,
+        image: MedImage, // dummy image
+      },
+      {
+        _id: '2',
+        name: 'Ibuprofen',
+        price: 80,
+        quantity: 1,
+        image: MedImage,
+      },
+    ];
+    setCartItems(Item);
+    calculateTotal(Item);
+  
+
   };
 
   const updateQuantity = async (itemId, quantity) => {
-    try {
-      const res = await axios.put(
-        `http://your-server/cart/${itemId}`,
-        { quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchCart();
-    } catch (err) {
-      console.error(err);
-    }
+    // try {
+    //   const res = await axios.put(
+    //     `http://your-server/cart/${itemId}`,
+    //     { quantity },
+    //     { headers: { Authorization: `Bearer ${token}` } }
+    //   );
+    //   fetchCart();
+    // } catch (err) {
+    //   console.error(err);
+    // }
+    if (quantity < 1) return; // Prevent quantity going below 1
+
+    const updatedCart = cartItems.map(item => 
+      item._id === itemId ? { ...item, quantity } : item
+    );
+    setCartItems(updatedCart);
+    calculateTotal(updatedCart);
   };
 
   const calculateTotal = (items) => {
@@ -48,7 +77,7 @@ const CartScreen = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <Image source={item.image} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>Rs. {item.price}</Text>
@@ -82,7 +111,7 @@ const CartScreen = () => {
           <Text style={styles.checkoutText}>Checkout</Text>
         </TouchableOpacity>
       </View>
-      <BottomTabs />
+      {/* <BottomTabs /> */}
     </View>
   );
 };
