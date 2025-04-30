@@ -9,10 +9,18 @@ import {
   ScrollView, 
   StatusBar 
 } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
+
 
 const HelpCenter = () => {
+          const navigation = useNavigation();
+  
   return (
     <SafeAreaView style={styles.container}>
+       <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10,marginLeft:10,marginTop:20 }}>
+                    <Ionicons name="arrow-back" size={28} color="#333" />
+                  </TouchableOpacity>
       <StatusBar barStyle="light-content" backgroundColor="#7A9E8F" />
 
       <View style={styles.header}>

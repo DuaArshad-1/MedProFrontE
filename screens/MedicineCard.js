@@ -9,6 +9,8 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
+
 
 const MedCard = () => {
   const route = useRoute();
@@ -28,9 +30,12 @@ const MedCard = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#5E8370" />
       <View style={styles.topSection}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+    <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 5,marginLeft:-300 }}>
+      <Ionicons name="arrow-back" size={28} color="#333" />
+    </TouchableOpacity>
         <Text style={styles.title}>MED PRO</Text>
         <Text style={styles.subtitle}>Med Description</Text>
       </View>
@@ -90,8 +95,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backArrow: {
-    position: 'absolute',
-    left: 20,
+    position: 'left',
+    left: -150,
     top: 20,
     fontSize: 22,
     color: '#fff',
