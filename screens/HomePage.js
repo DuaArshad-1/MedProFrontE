@@ -73,6 +73,7 @@ const HomePage = () => {
   'Gastroenterology',
   'Vitamins',
   'ENT',
+  'Psychotic',
   'Diabetes',
   'Pediatrics',
 ].map((cat) => (
