@@ -50,9 +50,13 @@ const HelpCenter = () => {
           <Text style={styles.answer}>Contact support immediately to update your shipping address.</Text>
         </View>
 
-        <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactButtonText}>Contact Support</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.contactButton}
+  onPress={() => navigation.navigate('Contact')}
+>
+  <Text style={styles.contactButtonText}>Contact Support</Text>
+</TouchableOpacity>
+
       </ScrollView>
     </SafeAreaView>
   );

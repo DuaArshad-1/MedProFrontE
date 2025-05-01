@@ -23,6 +23,8 @@ import DeliveryDetail from "./screens/DeliveryDetails";
 import PendingO from "./screens/PendingOrders";
 import CategoryScreen from "./screens/CategoryScreen";
 import SubCategoryScreen from "./screens/SubCategory";
+import NotifictationsScreen from "./screens/NotificationsScreen"
+import CheckoutScreen from "./screens/CheckoutScreen"
 
 const Stack = createStackNavigator();
 
@@ -58,7 +60,9 @@ const App = () => {
         <Stack.Screen name="Categories" component={CategoryScreen}/>
         <Stack.Screen name="SubCategories" component={SubCategoryScreen}/>
         <Stack.Screen name="DeliveryDetails" component={DeliveryDetail}/>
+        <Stack.Screen name="Notifications" component={NotifictationsScreen}/>
         <Stack.Screen name="Main" component={BottomTabs} />
+        <Stack.Screen name="Checkout" component={CheckoutScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

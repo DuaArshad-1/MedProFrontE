@@ -81,9 +81,13 @@ export default function EditProfileScreen() {
         />
       </View>
 
-      <TouchableOpacity style={styles.saveButton}>
-        <Text style={styles.saveText}>Save Settings</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+  style={styles.saveButton}
+  onPress={() => navigation.navigate('Profile')}
+>
+  <Text style={styles.saveText}>Save Settings</Text>
+</TouchableOpacity>
+
     </View>
   );
 }

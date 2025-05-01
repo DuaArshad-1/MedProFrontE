@@ -49,16 +49,33 @@ const HomePage = () => {
         <Text style={styles.subtitle}>Recommended</Text>
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search" />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
             <Text style={styles.bellIcon}>🔔</Text>
           </TouchableOpacity>
+
         </View>
         <ScrollView
   horizontal
   showsHorizontalScrollIndicator={false}
   contentContainerStyle={styles.categories}
 >
-  {['Recently Viewed', 'Fever', 'General', 'Dermatology', 'Orthopedics', 'Anti'].map((cat) => (
+{[
+  'Recently Viewed',
+  'Fever',
+  'General',
+  'Dermatology',
+  'Orthopedics',
+  'AntiSeptics',
+  'Pain Relief',
+  'Cardiology',
+  'Allergy',
+  'Neurology',
+  'Gastroenterology',
+  'Vitamins',
+  'ENT',
+  'Diabetes',
+  'Pediatrics',
+].map((cat) => (
     <TouchableOpacity
       key={cat}
       style={[

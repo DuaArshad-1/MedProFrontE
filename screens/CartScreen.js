@@ -107,9 +107,13 @@ const CartScreen = () => {
       />
       <View style={styles.checkoutContainer}>
         <Text style={styles.total}>Total: Rs.{total}</Text>
-        <TouchableOpacity style={styles.checkoutButton}>
-          <Text style={styles.checkoutText}>Checkout</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.checkoutButton}
+  onPress={() => navigation.navigate('Checkout')}
+>
+  <Text style={styles.checkoutText}>Checkout</Text>
+</TouchableOpacity>
+
       </View>
       {/* <BottomTabs /> */}
     </View>

@@ -70,12 +70,20 @@ const MedCard = () => {
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Buy</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Add to Cart</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.button}
+  onPress={() => navigation.navigate('Checkout')}
+>
+  <Text style={styles.buttonText}>Buy Now</Text>
+</TouchableOpacity>
+
+<TouchableOpacity
+  style={styles.button}
+  onPress={() => navigation.navigate('Cart')}
+>
+  <Text style={styles.buttonText}>Add to Cart</Text>
+</TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
