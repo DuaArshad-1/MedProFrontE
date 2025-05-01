@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 
 const subcategories = [
   'Haloperidol (Haldol)',
@@ -21,6 +23,8 @@ const subcategories = [
 
 const SubCategoryScreen = ({ route }) => {
   const { category } = route.params;
+  const navigation = useNavigation(); // ✅ Add this line
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,7 +35,8 @@ const SubCategoryScreen = ({ route }) => {
         data={subcategories}
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.subItem}>
+          <TouchableOpacity style={styles.subItem}
+            onPress={() => navigation.navigate('subCategoryMeds', {category: item})}>
             <Text style={styles.subText}>{item}</Text>
             <Icon name="chevron-forward" size={16} color="#333" />
           </TouchableOpacity>

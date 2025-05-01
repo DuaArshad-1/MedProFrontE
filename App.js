@@ -25,6 +25,7 @@ import CategoryScreen from "./screens/CategoryScreen";
 import SubCategoryScreen from "./screens/SubCategory";
 import NotifictationsScreen from "./screens/NotificationsScreen"
 import CheckoutScreen from "./screens/CheckoutScreen"
+import subCategoryMedsScreen from "./screens/subCategoryMedsScreen"
 
 const Stack = createStackNavigator();
 
@@ -62,6 +63,7 @@ const App = () => {
         <Stack.Screen name="DeliveryDetails" component={DeliveryDetail}/>
         <Stack.Screen name="Notifications" component={NotifictationsScreen}/>
         <Stack.Screen name="Main" component={BottomTabs} />
+        <Stack.Screen name="subCategoryMeds" component={subCategoryMedsScreen} />
         <Stack.Screen name="Checkout" component={CheckoutScreen} />
       </Stack.Navigator>
     </NavigationContainer>
