@@ -29,7 +29,7 @@ const BottomTabs = () => {
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Categories') {
-            IconComponent = Feather; // ✨ Use Feather for clipboard
+            IconComponent = Feather; 
             iconName = focused ? 'clipboard' : 'clipboard';
           }
 
@@ -52,7 +52,7 @@ const BottomTabs = () => {
     >
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="Categories" component={CategoryScreen} /> 
-      <Tab.Screen name="Camera" component={CameraScreen} />
+      {/* <Tab.Screen name="Camera" component={null} /> */}
       <Tab.Screen name="Cart" component={CartScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

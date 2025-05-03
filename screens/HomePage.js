@@ -75,7 +75,7 @@ const HomePage = () => {
   'ENT',
   'Psychotic',
   'Diabetes',
-  'Pediatrics',
+  'Pediatrics', 
 ].map((cat) => (
     <TouchableOpacity
       key={cat}
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: 10,
-    gap: 10,
+    gap: 6,
   },
   categoryText: {
     marginRight: 10,
