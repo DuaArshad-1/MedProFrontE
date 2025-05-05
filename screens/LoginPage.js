@@ -1,116 +1,10 @@
-// import React, { useState } from "react";
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   KeyboardAvoidingView,
-//   Platform,
-//   Alert,
-// } from "react-native";
-// import { useNavigation } from "@react-navigation/native";
-
-// const LoginPage = () => {
-//   const navigation = useNavigation();
-//   const [identifier, setIdentifier] = useState(""); 
-//   const [password, setPassword] = useState("");
-
-//   const handleLogin = () => {
-//     if (!identifier.trim() || !password.trim()) {
-//       Alert.alert("Error", "Please enter your username, email, or phone and password.");
-//       return;
-//     }
-//     Alert.alert("Success", "Login functionality will be added soon!");
-//   };
-
-//   return (
-//     <KeyboardAvoidingView
-//       behavior={Platform.OS === "ios" ? "padding" : "height"}
-//       style={styles.container}
-//     >
-//       <Text style={styles.title}>Login to MedPro</Text>
-
-//       <TextInput
-//         style={styles.input}
-//         placeholder="Username, Email or Phone"
-//         autoCapitalize="none"
-//         value={identifier}
-//         onChangeText={setIdentifier}
-//       />
-//       <TextInput
-//         style={styles.input}
-//         placeholder="Password"
-//         secureTextEntry
-//         autoCapitalize="none"
-//         value={password}
-//         onChangeText={setPassword}
-//       />
-
-//       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-//         <Text style={styles.loginText}>Login</Text>
-//       </TouchableOpacity>
-
-//       <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-//         <Text style={styles.registerText}>Don’t have an account? Sign Up</Text>
-//       </TouchableOpacity>
-//     </KeyboardAvoidingView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     backgroundColor: "#fff",
-//     paddingHorizontal: 20,
-//   },
-//   title: {
-//     fontSize: 36,
-//     fontWeight: "bold",
-//     color: "#007bff",
-//     marginBottom: 30,
-//   },
-//   input: {
-//     width: "100%",
-//     padding: 12,
-//     borderWidth: 1,
-//     borderColor: "#ccc",
-//     borderRadius: 10,
-//     marginBottom: 15,
-//     fontSize: 16,
-//   },
-//   loginButton: {
-//     backgroundColor: "#007bff",
-//     paddingVertical: 12,
-//     paddingHorizontal: 40,
-//     borderRadius: 25,
-//     marginTop: 10,
-//   },
-//   loginText: {
-//     color: "#fff",
-//     fontSize: 18,
-//     fontWeight: "bold",
-//   },
-//   registerText: {
-//     marginTop: 15,
-//     color: "#007bff",
-//     fontSize: 16,
-//   },
-// });
-
-// export default LoginPage;
-import { BASE_URL } from '../config'; // adjust the path
-
-
-
+import axiosInstance  from '../config'; // adjust the path
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+// import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
@@ -120,25 +14,29 @@ const LoginPage = () => {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
-    // try {
-    //   const res = await axios.post(${BASE_URL}/users/login, {
-    //     emailOrPhone: identifier,
-    //     password
-    //   });
-    //   const { token } = res.data;
-    //   await AsyncStorage.setItem('token', res.data.token);
-    //   await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+    try {
+      const res = await axiosInstance.post('/users/login', {
+        emailOrPhone: identifier,
+        password: password,
+      });
+      console.log('Login response:', res.data);
+      // const { token } = res.data;
+      await AsyncStorage.setItem('token', res.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
 
-    //   navigation.navigate("Profile");
-    // } catch (err) {
-    //   console.error(err);
-    //   Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
+      navigation.navigate('Main', {
+        screen: 'Home',
+        params: { user: res.data.user }
+      });
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
 
-    // }
+    }
     // navigation.navigate('Profile');
-    navigation.navigate('Main', {
-      screen: 'Profile'
-    });
+    // navigation.navigate('Main', {
+    //   screen: 'Profile'
+    // });
     
   };
 

@@ -17,7 +17,7 @@ import HomePage from './screens/HomePage';
 import MedicineCard from './screens/MedicineCard';
 import ForgotPassword from './screens/ForgotPassword';
 import SignupPage from './screens/SignupPage';
-import Camera from './screens/CameraScreen';
+// import Camera from './screens/CameraScreen';
 import EditProfile from './screens/EditProfileScreen';
 import DeliveryDetail from "./screens/DeliveryDetails";
 import PendingO from "./screens/PendingOrders";

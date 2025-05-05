@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { ScrollView } from 'react-native';
 import {
   View,
@@ -11,8 +11,10 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-
+import axiosInstance from '../config';
 const products = [
   {
     id: '1',
@@ -27,17 +29,53 @@ const products = [
 const HomePage = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [products, setProducts] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  // const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  useEffect(() => {
+    fetchProducts();
+  }
+  , []);
+  const fetchProducts = async () => {
+    try {
+      const response = await axiosInstance.get('/medicines/'); // Adjust the endpoint as needed
+      setProducts(response.data.medicines); // Adjust based on your API response structure
+      // console.log('Products:', response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setLoading(false);
+    }
+  }
+  const fetchCategories = async (name) => {
+    try {
+      const response = await axiosInstance.get(`/category/${name}`); // Adjust the endpoint as needed
+      setCategories(response.data.categories); // Adjust based on your API response structure
+      console.log('Categories:', response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }
+
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('MedCard', { product: item })}
     >
       <Image source={require('../assets/medpro4.png')}style={styles.productImage}resizeMode="contain"/>
+      
       <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>Rs. {item.price}</Text>
-      <View style={styles.dosageTag}>
-        <Text style={styles.dosageText}>{item.dosage}</Text>
-      </View>
+      <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text>
+      
+      {item.variants.map((variant, index) => (
+        <View key={index}>
+          
+          <View style={styles.dosageTag}>
+            <Text style={styles.dosageText}>{variant.mg} mg</Text>
+          </View>
+        </View>
+  ))}
     </TouchableOpacity>
   );
 
@@ -60,7 +98,7 @@ const HomePage = () => {
   contentContainerStyle={styles.categories}
 >
 {[
-  'Recently Viewed',
+  'General',
   'Fever',
   'General',
   'Dermatology',
@@ -83,7 +121,7 @@ const HomePage = () => {
         styles.categoryButton,
         selectedCategory === cat && styles.categoryButtonSelected,
       ]}
-      onPress={() => setSelectedCategory(cat)}
+      onPress={() => fetchCategories(cat)}
     >
       <Text style={[
         styles.categoryText,

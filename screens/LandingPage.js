@@ -9,9 +9,7 @@ import {
 const LandingPage = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Main', {
-        screen: 'Home'
-      });
+      navigation.replace( 'Login');
     }, 3000); // 3 seconds delay
 
     return () => clearTimeout(timer); // cleanup on unmount
