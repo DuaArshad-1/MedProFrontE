@@ -15,24 +15,13 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../config';
-const products = [
-  {
-    id: '1',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },
-  // Add more items if needed
-];
 
 const HomePage = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [products, setProducts] = useState([]);
-  // const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
-  // const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [productName, setProductName] = useState('');
   useEffect(() => {
     fetchProducts();
   }
@@ -40,9 +29,10 @@ const HomePage = () => {
   const fetchProducts = async () => {
     try {
       const response = await axiosInstance.get('/medicines/'); // Adjust the endpoint as needed
+      // console.log('Products:', response.data.medicines);
       setProducts(response.data.medicines); // Adjust based on your API response structure
       // console.log('Products:', response.data);
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error('Error fetching products:', error);
       setLoading(false);
@@ -50,14 +40,30 @@ const HomePage = () => {
   }
   const fetchCategories = async (name) => {
     try {
-      const response = await axiosInstance.get(`/category/${name}`); // Adjust the endpoint as needed
-      setCategories(response.data.categories); // Adjust based on your API response structure
-      console.log('Categories:', response.data);
+      const response = await axiosInstance.get(`/category?name=${name}`); // Adjust the endpoint as needed
+      // console.log('Categories:', response.data);
+      setProducts(response.data);
+
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
   }
+  const handleSearch = async (text)=>{
+    setSearchQuery(text);
+    if (text) {
+      try {
+        const response = await axiosInstance.get(`medicines/search?name=${text}`);
+        setProductName(products)
+        setProducts(response.data);
 
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]); // Clear products on error
+      }
+    } else {
+      fetchProducts(); // Fetch all products if search query is empty
+    }
+  }
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
@@ -86,7 +92,7 @@ const HomePage = () => {
         <Text style={styles.title}>MED PRO</Text>
         <Text style={styles.subtitle}>Recommended</Text>
         <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="Search" />
+          <TextInput style={styles.searchInput} placeholder="Search" value={searchQuery} onChangeText={handleSearch} />
           <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
             <Text style={styles.bellIcon}>🔔</Text>
           </TouchableOpacity>
@@ -99,8 +105,8 @@ const HomePage = () => {
 >
 {[
   'General',
+  'Painkiller',
   'Fever',
-  'General',
   'Dermatology',
   'Orthopedics',
   'AntiSeptics',
@@ -121,7 +127,7 @@ const HomePage = () => {
         styles.categoryButton,
         selectedCategory === cat && styles.categoryButtonSelected,
       ]}
-      onPress={() => fetchCategories(cat)}
+      onPress={() =>{if(cat!=='General')fetchCategories(cat);}}
     >
       <Text style={[
         styles.categoryText,

@@ -9,14 +9,42 @@ import {
   StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // For icons
-
+import axiosInstance from '../config'; // Adjust the import based on your project structure
+import { useNavigation } from '@react-navigation/native';
 const SignupPage = () => {
+  const navigation= useNavigation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [errors, setErrors] = useState({});
 
+  const handleRegister = async() => {
+    setErrors({}); // clear previous errors
+  
+    try {
+
+      const response = await axiosInstance.post("/users/register", {
+        name,
+        email,
+        phone:phoneNumber,
+        password,
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        navigation.navigate("Login");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        const fieldErrors = error.response.data.errors || {};
+        setErrors(fieldErrors);
+      } else {
+        console.error("Registration error:", error.message);
+      }
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#7A9E8F" />
@@ -36,7 +64,7 @@ const SignupPage = () => {
             onChangeText={setName}
           />
         </View>
-
+        {/* {errors.username && <Text style={styles.error}>{errors.username}</Text>} */}
         <View style={styles.inputWrapper}>
           <Ionicons name="mail-outline" size={20} color="gray" style={styles.icon} />
           <TextInput
@@ -47,7 +75,20 @@ const SignupPage = () => {
             onChangeText={setEmail}
           />
         </View>
-
+        {/* {errors.email && <Text style={styles.error}>{errors.email}</Text>} */}
+        <View style={styles.inputWrapper}>
+          <Ionicons name="call-outline" size={20} color="gray" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your phone number"
+            keyboardType="phone-pad"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+          />
+        </View>
+        {/* {errors.phoneNumber && (
+                <Text style={styles.error}>{errors.phoneNumber}</Text>
+              )} */}
         <View style={styles.inputWrapper}>
           <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
           <TextInput
@@ -65,6 +106,7 @@ const SignupPage = () => {
             />
           </TouchableOpacity>
         </View>
+        {/* {errors.password && <Text style={styles.error}>{errors.password}</Text>} */}
 
         <View style={styles.checkboxContainer}>
           <TouchableOpacity onPress={() => setIsChecked(!isChecked)} style={styles.checkbox}>
@@ -75,7 +117,7 @@ const SignupPage = () => {
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.signupButton}>
+        <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
           <Text style={styles.signupButtonText}>Signup</Text>
         </TouchableOpacity>
       </View>
@@ -98,6 +140,13 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     color: '#1B1B1B',
+  },
+  error: {
+    color: "red",
+    alignSelf: "flex-start",
+    marginBottom: 10,
+    fontSize: 14,
+    paddingLeft: 5,
   },
   subtitle: {
     fontSize: 22,

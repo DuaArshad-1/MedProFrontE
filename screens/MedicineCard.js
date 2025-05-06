@@ -13,10 +13,12 @@ import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/ve
 
 
 const MedCard = () => {
+  
   const route = useRoute();
   const navigation = useNavigation();
   const { product } = route.params || {};
-  const [quantity, setQuantity] = useState(5);
+  // console.log('Product:', product.description);
+  const [quantity, setQuantity] = useState(1);
 
   if (!product) {
     return (
@@ -43,21 +45,20 @@ const MedCard = () => {
       <View style={styles.content}>
         <Image source={product.image} style={styles.image} resizeMode="contain" />
 
-        <Text style={styles.price}>Rs. {product.price}</Text>
+        <Text style={styles.price}>Rs. {product.variants[0].price}</Text>
         <Text style={styles.name}>{product.name}</Text>
         <Text style={styles.description}>
-          Treat mild to moderate pain.{"\n"}
-          Can also be used to treat fever (high temperature).
+          {product.description}
         </Text>
 
-        <View style={styles.dosageContainer}>
-          <View style={styles.dosageTag}>
-            <Text style={styles.dosageText}>5mg</Text>
-          </View>
-          <View style={styles.dosageTag}>
-            <Text style={styles.dosageText}>10mg</Text>
-          </View>
-        </View>
+        {product.variants.map((variant, index) => (
+                <View key={index}>
+                  
+                  <View style={styles.dosageTag}>
+                    <Text style={styles.dosageText}>{variant.mg} mg</Text>
+                  </View>
+                </View>
+        ))}
 
         <View style={styles.quantitySelector}>
           <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))}>
