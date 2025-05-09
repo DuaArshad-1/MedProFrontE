@@ -36,7 +36,7 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error fetching products:', error);
       setLoading(false);
-    }
+    } 
   }
   const fetchCategories = async (name) => {
     try {
@@ -72,7 +72,10 @@ const HomePage = () => {
       <Image source={require('../assets/medpro4.png')}style={styles.productImage}resizeMode="contain"/>
       
       <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text>
+      {/* <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text> */}
+      <Text style={styles.productPrice}> Rs. {item.variants?.[0]?.price ?? 'N/A'}
+      </Text>
+
       
       {item.variants.map((variant, index) => (
         <View key={index}>
@@ -147,7 +150,9 @@ const HomePage = () => {
         data={products}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
-        keyExtractor={(item) => item.id}
+        // keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id.toString()}
+
         contentContainerStyle={styles.productGrid}
         renderItem={renderProduct}
       />

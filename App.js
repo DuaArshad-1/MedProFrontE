@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LandingPage from "./screens/LandingPage";
 import LoginPage from "./screens/LoginPage";
-import RegisterPage from "./screens/RegisterPage";
+// import RegisterPage from "./screens/RegisterPage";
 import ProfileScreen from "./screens/ProfileScreen";
 import CartScreen from "./screens/CartScreen";
 import BottomTabs from "./screens/BottomTabs";
@@ -42,7 +42,7 @@ const App = () => {
 
         <Stack.Screen name="Landing" component={LandingPage} />
         <Stack.Screen name="Login" component={LoginPage} />
-        <Stack.Screen name="Register" component={RegisterPage} />
+        {/* <Stack.Screen name="Register" component={RegisterPage} /> */}
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="Cart"    component={CartScreen} />

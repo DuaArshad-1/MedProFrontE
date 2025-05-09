@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
-
+import axiosInstance from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MedCard = () => {
   
@@ -27,7 +28,33 @@ const MedCard = () => {
       </View>
     );
   }
-
+  const addToCart = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const variantIndex = 0; // change this later if user can select different variants
+  
+      const res = await axiosInstance.post(
+        '/cart/',
+        {
+          medicineId: product._id,
+          quantity,
+          variantIndex,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      alert('Item added to cart');
+      navigation.navigate("Main",{screen:'Cart'}); // optional
+    } catch (error) {
+      console.error('Add to cart error:', error?.response?.data || error.message);
+      alert('Failed to add to cart');
+    }
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#5E8370" />
@@ -35,7 +62,7 @@ const MedCard = () => {
         {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity> */}
-    <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 5,marginLeft:-300 }}>
+    <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 115,marginLeft:-300 }}>
       <Ionicons name="arrow-back" size={28} color="#333" />
     </TouchableOpacity>
         <Text style={styles.title}>MED PRO</Text>
@@ -80,7 +107,7 @@ const MedCard = () => {
 
 <TouchableOpacity
   style={styles.button}
-  onPress={() => navigation.navigate('Cart')}
+  onPress={addToCart}
 >
   <Text style={styles.buttonText}>Add to Cart</Text>
 </TouchableOpacity>
