@@ -108,6 +108,17 @@ const NotificationsScreen = ({ navigation }) => {
                 >
                   <Text style={styles.buttonText}>View Status</Text>
                 </TouchableOpacity>
+                {/* <TouchableOpacity  //UNCOMMENT AFTER API CALLS IN DELIVERY DETAIL
+  onPress={() => {
+    if (notification.type === 'order' && notification.orderId) {
+      navigation.navigate('DeliveryDetailsScreen', { orderId: notification.orderId });
+    }
+  }}
+>
+  <Text>{notification.title}</Text>
+  <Text>{notification.message}</Text>
+</TouchableOpacity> */}
+
               </View>
             </TouchableOpacity>
           ))}
