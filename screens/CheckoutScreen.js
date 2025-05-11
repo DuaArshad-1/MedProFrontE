@@ -1,148 +1,242 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../config';
+// import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+const Checkout = () => {
+  const route = useRoute();
 
-const CheckoutScreen = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backArrow}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>MED PRO</Text>
-          <Text style={styles.subtitle}>Checkout</Text>
-        </View>
+  const [user, setUser] = useState(null);
+  const navigation = useNavigation();
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        // Simulate a delay like a real request
+        token = await AsyncStorage.getItem('token');
+        
+        const data=await axiosInstance.get('/users/Profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });    
+        // console.log('User:', data.data.address);  
+        setUser(data.data);
+        setAddress(data.data.address[0]);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
+    };
+  
+    fetchProfile();
+  }, []);
+  // Get the passed parameters
+  const { cartItems, id, name, dosage, price, quantity, total ,singleItem} = route.params || {};
 
-        {/* Order Summary */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
-          <View style={styles.card}>
-            <Text style={styles.itemText}>Paracetamol (x2)</Text>
-            <Text style={styles.itemText}>Ibuprofen (x1)</Text>
-          </View>
-        </View>
+  // State for address and payment method
+  const [address, setAddress] = useState(''); // Default to user's address if available
+  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
 
-        {/* Shipping Info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Shipping Address</Text>
-          <View style={styles.card}>
-            <Text style={styles.itemText}>123 Green Street</Text>
-            <Text style={styles.itemText}>City, Country</Text>
-            <Text style={styles.itemText}>+123 456 789</Text>
-          </View>
-        </View>
+  if (!cartItems && (!name || !dosage || !price || !quantity)) {
+    return (
+      <View style={styles.center}>
+        <Text>Invalid checkout details.</Text>
+      </View>
+    );
+  }
 
-        {/* Payment Method */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Method</Text>
-          <View style={styles.card}>
-            <Text style={styles.itemText}>Visa **** 1234</Text>
-          </View>
-        </View>
+  const handlePlaceOrder = async() => {
+    try{
+      const token = await AsyncStorage.getItem('token');
+      const med={ id, dosage, quantity };
+      console.log('Medicine:', med);
+      const res= await axiosInstance.post('/orders/', {
+        medicines: cartItems?.medicines || [med],
+        deliveryAddress: address,
+        paymentMethod,
+        shouldEmptyCart: !singleItem,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Order response:', res.data);
+    
 
-        {/* Total */}
-        <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>$25.99</Text>
-        </View>
+      alert('Order placed successfully!');
+      navigation.navigate('Main', {screen:'Home'}); 
+    }
+    catch(err){
+      console.error('Error placing order:', err);
+      alert('Failed to place order. Please try again.');
+    }
+  };
 
-        {/* Checkout Button */}
-        <TouchableOpacity
-          style={styles.checkoutButton}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.checkoutText}>Place Order</Text>
-        </TouchableOpacity>
-      </ScrollView>
+  const renderItem = ({ item }) => (
+    <View>
+      <Text style={styles.itemDetail}>Medicine: {item.name}</Text>
+      <Text style={styles.itemDetail}>Dosage: {item.dose} mg</Text>
+      <Text style={styles.itemDetail}>Price: Rs. {item.price}</Text>
+      <Text style={styles.itemDetail}>Quantity: {item.quantity}</Text>
+      <Text style={styles.itemDetail}>Total Price: Rs. {item.price * item.quantity}</Text>
     </View>
   );
-};
 
-export default CheckoutScreen;
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Checkout</Text>
+
+        {/* Order Summary with background */}
+        <View style={styles.orderSummary}>
+          <Text style={styles.orderTitle}>Order Summary</Text>
+
+          {/* If cartItems exists, show them as a list */}
+          {cartItems ? (
+            <FlatList
+              data={cartItems}
+              renderItem={renderItem}
+              keyExtractor={(item) => item._id}
+            />
+          ) : (
+            // If single item (Buy Now) is passed, show its details
+            <>
+              <Text style={styles.itemDetail}>Medicine: {name}</Text>
+              <Text style={styles.itemDetail}>Dosage: {dosage} mg</Text>
+              <Text style={styles.itemDetail}>Price: Rs. {price}</Text>
+              <Text style={styles.itemDetail}>Quantity: {quantity}</Text>
+              <Text style={styles.itemDetail}>Total Price: Rs. {price * quantity}</Text>
+            </>
+          )}
+        </View>
+
+        {/* Editable Address Field */}
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your address"
+          value={address}
+          onChangeText={setAddress}
+        />
+
+        {/* Payment Method Selector */}
+        <View style={styles.paymentMethodContainer}>
+          <Text style={styles.paymentLabel}>Payment Method:</Text>
+          <TouchableOpacity
+            style={[
+              styles.paymentMethodBtn,
+              paymentMethod === 'Credit Card' && styles.selectedPayment,
+            ]}
+            onPress={() => setPaymentMethod('Credit Card')}
+          >
+            <Text style={styles.paymentText}>Credit Card</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.paymentMethodBtn,
+              paymentMethod === 'Cash on Delivery' && styles.selectedPayment,
+            ]}
+            onPress={() => setPaymentMethod('Cash on Delivery')}
+          >
+            <Text style={styles.paymentText}>Cash on Delivery</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Place Order Button */}
+        <TouchableOpacity style={styles.button} onPress={handlePlaceOrder}>
+          <Text style={styles.buttonText}>Place Order</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ADCBB6',
+    padding: 20,
   },
-  header: {
-    backgroundColor: '#5E8370',
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: '#fff',
-    marginBottom: 10,
+  content: {
+    alignItems: 'center',
+    paddingBottom: 20, // To add some space at the bottom when scrolling
   },
   title: {
-    fontSize: 20,
-    color: '#fff',
+    fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
+    marginBottom: 20,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#DFE5E0',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2e4d3d',
-    marginBottom: 8,
-  },
-  card: {
-    backgroundColor: '#D9E5DB',
-    padding: 12,
-    borderRadius: 10,
-  },
-  itemText: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 4,
-  },
-  totalSection: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  totalLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2e4d3d',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2e4d3d',
-  },
-  checkoutButton: {
-    backgroundColor: '#F3502B',
-    marginTop: 30,
-    marginHorizontal: 40,
-    paddingVertical: 12,
+  orderSummary: {
+    backgroundColor: '#f1f1f1', // Light background for order summary
+    padding: 20,
+    marginBottom: 20,
     borderRadius: 12,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  orderTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  itemDetail: {
+    fontSize: 18,
+    marginVertical: 5,
+    color: '#333',
+  },
+  input: {
+    width: '100%',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 20,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  paymentMethodContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  paymentLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  paymentMethodBtn: {
+    backgroundColor: '#f0f0f0',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+    width: '100%',
     alignItems: 'center',
   },
-  checkoutText: {
+  selectedPayment: {
+    backgroundColor: '#5E8370',
+  },
+  paymentText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  button: {
+    backgroundColor: '#2E4F3D',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default Checkout;

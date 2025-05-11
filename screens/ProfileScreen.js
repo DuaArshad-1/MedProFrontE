@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Modal, TouchableWithoutFeedback, Animated
@@ -6,6 +8,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import axios from 'axios';
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 // import { BASE_URL } from '../config'; // adjust this path if needed
+import axiosInstance from '../config';
+import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import axios from 'axios';
+const statusBarHeight = Constants.statusBarHeight;
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,38 +23,19 @@ const ProfileScreen = ({ navigation }) => {
 
   const slideAnim = useState(new Animated.Value(height))[0];
 
-  // useEffect(() => {
-  //   const fetchProfile = async () => {
-  //     try {
-  //       const token = await AsyncStorage.getItem('token');
-  //       const res = await axios.get(`${BASE_URL}/users/getProfile`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`
-  //         }
-  //       });
-  //       setUser(res.data);
-  //     } catch (err) {
-  //       console.error('Error fetching profile:', err);
-  //     }
-  //   };
-
-  //   fetchProfile();
-  // }, []);
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         // Simulate a delay like a real request
-        await new Promise(resolve => setTimeout(resolve, 1000));
-  
-        // Fake user data
-        const fakeUser = {
-          name: 'Jane Doe',
-          email: 'jane@example.com',
-          phone: '9876543210'
-        };
-  
-        setUser(fakeUser);
+        const token = await AsyncStorage.getItem('token');
+        // console.log('Token:', token);
+        const data=await axiosInstance.get('/users/Profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });    
+        // console.log('User:', data.data);  
+        setUser(data.data);
       } catch (err) {
         console.error('Error fetching profile:', err);
       }
@@ -56,68 +44,6 @@ const ProfileScreen = ({ navigation }) => {
     fetchProfile();
   }, []);
   
-
-//   const handleLogout = async () => {
-//     await AsyncStorage.clear();
-//     navigation.replace('Login');
-//   };
-
-//   if (!user) {
-//     return (
-//       <View style={styles.loadingContainer}>
-//         <Text style={styles.loadingText}>Loading profile...</Text>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <ScrollView style={styles.container}>
-//       <TouchableOpacity onPress={() => navigation.goBack()}>
-//         <Ionicons name="arrow-back" size={28} color="#333" />
-//       </TouchableOpacity>
-
-//       <View style={styles.profileHeader}>
-//         <Image
-//           source={require('../assets/icon.png')} // make sure this file exists
-//           style={styles.avatar}
-//         />
-//         <Text style={styles.name}>{user.name || 'User Name'}</Text>
-//         <Text style={styles.email}>{user.email}</Text>
-//       </View>
-
-//       <View style={styles.details}>
-//         <Text style={styles.detailText}>Phone: {user.phone}</Text>
-//         {/* Add any other fields here */}
-//       </View>
-
-//       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-//         <Text style={styles.logoutText}>Log Out</Text>
-//       </TouchableOpacity>
-//     </ScrollView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, padding: 20, backgroundColor: '#f2f2f2' },
-//   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-//   loadingText: { fontSize: 16, color: '#888' },
-//   profileHeader: { alignItems: 'center', marginVertical: 20 },
-//   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-//   name: { fontSize: 20, fontWeight: 'bold', color: '#333' },
-//   email: { fontSize: 16, color: '#666' },
-//   details: { marginTop: 20 },
-//   detailText: { fontSize: 16, marginBottom: 10 },
-//   logoutButton: {
-//     marginTop: 30,
-//     backgroundColor: '#d9534f',
-//     padding: 15,
-//     borderRadius: 8,
-//     alignItems: 'center',
-//   },
-//   logoutText: { color: '#fff', fontSize: 16 },
-// });
-
-// export default ProfileScreen;
 
 const profileOptions = [
   { label: 'Info', icon: <Ionicons name="information-circle-outline" size={20} />, screen: 'Info' },
@@ -204,7 +130,15 @@ return (
                   openOrders();
                 } else if (item.label === 'Settings') {
                   openSettings();
-                } else {
+                } 
+                else if(item.label ==='Info'){
+                  console.log('User:', user);
+                  navigation.navigate(item.screen, { user });
+                }
+                else if(item.label === 'Help Center'){
+                  navigation.navigate(item.screen, { user });
+                }
+                else {
                   navigation.navigate(item.screen);
                 }
               }}
@@ -262,7 +196,7 @@ return (
         style={styles.modalButton}
         onPress={() => {
           closeSettings();
-          navigation.navigate(setting.screen);
+          navigation.navigate(setting.screen,{ user });
         }}
       >
         {setting.icon}
@@ -353,7 +287,7 @@ return (
 // });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: width * 0.05 },
+  container: { flex: 1, padding: width * 0.05,marginTop: statusBarHeight+10 },
   title: { fontSize: width * 0.08, fontWeight: 'bold', textAlign: 'center', color: '#2e4d3d' },
   subtitle: { fontSize: width * 0.05, textAlign: 'center', marginBottom: 20, color: '#2e4d3d' },
   headerCard: {

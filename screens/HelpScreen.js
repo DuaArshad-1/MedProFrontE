@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -11,11 +11,40 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
-
-
+import axiosInstance from '../config';
+import Constants from 'expo-constants';
+const statusBarHeight = Constants.statusBarHeight;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const HelpCenter = () => {
-          const navigation = useNavigation();
-  
+  const navigation = useNavigation();
+  const route = useRoute();
+  const [message, setMessage] = useState('');
+  const [subject, setSubject] = useState('');
+  const user=route.params.user;
+  // console.log(user);
+  const heandleSumbitSupport=async()=>{
+    try{
+      const token = await AsyncStorage.getItem('token');
+      const res= await axiosInstance.post('/support/',{
+        name:user.name,
+        email:user.email,
+        subject,
+        message,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    alert('Your message has been sent successfully');
+    navigation.navigate('Main',{screen:'Home'});
+    }
+    catch(error){
+      console.error('Error sending message:', error.message);
+      alert('Failed to send message. Please try again later.');
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10,marginLeft:10,marginTop:20 }}>
@@ -31,11 +60,33 @@ const HelpCenter = () => {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.heading}>How can we help you?</Text>
 
-        <TextInput
+        {/* <TextInput
           style={styles.searchInput}
           placeholder="Search for help..."
+        /> */}
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Subject"
+          value={subject}
+          onChangeText={setSubject}
         />
-
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Message"
+          value={message}
+          onChangeText={setMessage}
+          multiline
+          numberOfLines={4}
+        />
+        <TouchableOpacity
+          style={styles.contactButton}
+          onPress={heandleSumbitSupport}
+        >
+          <Text style={styles.contactButtonText}>Send Message</Text>
+        </TouchableOpacity>
+        <Text style={styles.heading}>________________________________________________</Text>
+        
+        <Text style={styles.heading}>Frequently Asked Questions</Text>
         <View style={styles.faqSection}>
           <Text style={styles.question}>• How do I reset my password?</Text>
           <Text style={styles.answer}>Go to the login page and click on "Forgot Password?" to reset it easily.</Text>
@@ -51,11 +102,11 @@ const HelpCenter = () => {
         </View>
 
         <TouchableOpacity
-  style={styles.contactButton}
-  onPress={() => navigation.navigate('Contact')}
->
-  <Text style={styles.contactButtonText}>Contact Support</Text>
-</TouchableOpacity>
+          style={styles.contactButton}
+          onPress={() => navigation.navigate('Contact')}
+        >
+      <Text style={styles.contactButtonText}>Contact Support</Text>
+      </TouchableOpacity>
 
       </ScrollView>
     </SafeAreaView>
@@ -68,6 +119,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#a2b1a8',
+    paddingTop: statusBarHeight,
   },
   header: {
     marginTop: 20,
@@ -127,4 +179,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+ 
+  
+
 });

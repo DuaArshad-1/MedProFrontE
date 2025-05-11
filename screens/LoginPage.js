@@ -1,5 +1,5 @@
 import axiosInstance  from '../config'; // adjust the path
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image
 } from 'react-native';
@@ -19,11 +19,11 @@ const LoginPage = () => {
         emailOrPhone: identifier,
         password: password,
       });
-      console.log('Login response:', res.data);
+      // console.log('Login response:', res.data);
       // const { token } = res.data;
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
-
+      // console.log("hehehe", await AsyncStorage.getItem('token'));
       navigation.navigate('Main', {
         screen: 'Home',
         params: { user: res.data.user }
@@ -33,21 +33,21 @@ const LoginPage = () => {
       Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
 
     }
-    // navigation.navigate('Profile');
-    // navigation.navigate('Main', {
-    //   screen: 'Profile'
-    // });
     
-  };
-
+  };
+  
   return (
     <View style={styles.container}>
-      {/* Back arrow */}
+      {/*
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={28} color="#fff" />
-      </TouchableOpacity>
-
-      <Text style={styles.title}>MED PRO</Text>
+      </TouchableOpacity> */}
+      <Image
+        source={require('../assets/medpro.png')}
+        style={{ width: 200, height: 200, alignSelf: 'center', marginBottom: 20 }}
+        resizeMode="contain"
+      />
+      {/* <Text style={styles.title}>MED PRO</Text> */}
       <Text style={styles.subtitle}>Login</Text>
 
       {/* Email / Phone */}
@@ -97,33 +97,28 @@ const LoginPage = () => {
         </Text>
       </Text>
 
-      {/* Social buttons */}
-      <View style={styles.orRow}>
+      {/* <View style={styles.orRow}>
         <View style={styles.line} />
         <Text style={styles.orText}>OR</Text>
         <View style={styles.line} />
       </View>
 
-      {/** Google **/}
       <TouchableOpacity style={styles.socialButton}>
         <FontAwesome5 name="google" size={18} />
         <Text style={styles.socialText}>Sign in with Google</Text>
       </TouchableOpacity>
 
-      {/** Apple **/}
       <TouchableOpacity style={styles.socialButton}>
         <FontAwesome5 name="apple" size={18} />
         <Text style={styles.socialText}>Sign in with Apple</Text>
       </TouchableOpacity>
 
-      {/** Facebook **/}
       <TouchableOpacity style={styles.socialButton}>
         <FontAwesome5 name="facebook" size={18} />
         <Text style={styles.socialText}>Sign in with Facebook</Text>
       </TouchableOpacity>
 
-      <View style={{ flex: 1 }} />
-      {/* <BottomTabs /> */}
+      <View style={{ flex: 1 }} /> */}
     </View>
   );
 };
@@ -132,7 +127,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#a2b1a8',
-    padding: 20,
+    padding: 50,
   },
   title: {
     color: '#fff',
@@ -143,6 +138,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#fff',
+    fontSize: 36,
+    fontWeight: 'bold',
+
     fontSize: 20,
     textAlign: 'center',
     marginBottom: 30,

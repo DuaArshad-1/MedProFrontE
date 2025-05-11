@@ -10,130 +10,45 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-const products = [
-  {
-    id: '1',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },
-  {
-    id: '2',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '3',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '4',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '5',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '6',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '7',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '8',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '9',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '10',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '11',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '12',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '13',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '14',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '15',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '16',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },{
-    id: '17',
-    name: 'Paracetamol',
-    price: '200',
-    dosage: '5mg',
-    image: require('../assets/medpro4.png'),
-  },
-];
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import axiosInstance from '../config';
 
 const SubCategoryMedsScreen = () => {
   const navigation = useNavigation();
+  const route= useRoute();
+  const { category } = route.params;
+  const fetchMedicines = async () => {
+    try {
+      const response = await axiosInstance.get(`/category/?name=${category}`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    fetchMedicines();
+  }, []);
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('MedCard', { product: item })}
-    >
-      <Image source={item.image} style={styles.productImage} resizeMode="contain" />
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>Rs. {item.price}</Text>
-      <View style={styles.dosageTag}>
-        <Text style={styles.dosageText}>{item.dosage}</Text>
-      </View>
-    </TouchableOpacity>
+          style={styles.card}
+          onPress={() => navigation.navigate('MedCard', { product: item })}
+        >
+          <Image source={require('../assets/medpro4.png')} style={styles.productImage} resizeMode="contain" />
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text>
+    
+          <View style={styles.dosageRow}>
+            {item.variants.map((variant, index) => (
+              <View key={index} style={styles.dosageTag}>
+                <Text style={styles.dosageText}>{variant.mg} mg</Text>
+              </View>
+            ))}
+          </View>
+        </TouchableOpacity>
   );
 
   return (
@@ -141,7 +56,7 @@ const SubCategoryMedsScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor="#5E8370" />
       <View style={styles.topSection}>
         <Text style={styles.title}>MED PRO</Text>
-        <Text style={styles.subtitle}>SubCategory Medicines</Text>
+        <Text style={styles.subtitle}>{category} Medicines</Text>
 
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search" />
@@ -226,11 +141,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 6,
   },
+  dosageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6, // Use margin if gap is not supported
+    marginTop: 6,
+  },
   dosageTag: {
     backgroundColor: 'orange',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
+    margin: 2, // fallback for gap
   },
   dosageText: {
     color: 'white',

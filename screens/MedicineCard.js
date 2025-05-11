@@ -9,17 +9,18 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import axiosInstance from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
+const statusBarHeight = Constants.statusBarHeight;
 const MedCard = () => {
-  
   const route = useRoute();
   const navigation = useNavigation();
   const { product } = route.params || {};
-  // console.log('Product:', product.description);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
 
   if (!product) {
     return (
@@ -28,17 +29,16 @@ const MedCard = () => {
       </View>
     );
   }
+
   const addToCart = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const variantIndex = 0; // change this later if user can select different variants
-  
       const res = await axiosInstance.post(
         '/cart/',
         {
           medicineId: product._id,
           quantity,
-          variantIndex,
+          variantIndex: selectedVariantIndex,
         },
         {
           headers: {
@@ -46,25 +46,29 @@ const MedCard = () => {
           },
         }
       );
-  
       alert('Item added to cart');
-      navigation.navigate("Main",{screen:'Cart'}); // optional
+      // Pass parameters to Cart screen
+      navigation.navigate("Main", {
+        screen: 'Cart',
+        params: {
+          name: product.name,
+          dosage: product.variants[selectedVariantIndex].mg,
+          price: product.variants[selectedVariantIndex].price,
+          quantity,
+        },
+      });
     } catch (error) {
       console.error('Add to cart error:', error?.response?.data || error.message);
       alert('Failed to add to cart');
     }
   };
-  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#5E8370" />
       <View style={styles.topSection}>
-        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity> */}
-    <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 115,marginLeft:-300 }}>
-      <Ionicons name="arrow-back" size={28} color="#333" />
-    </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 50, marginLeft: -300 }}>
+          <Ionicons name="arrow-back" size={28} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>MED PRO</Text>
         <Text style={styles.subtitle}>Med Description</Text>
       </View>
@@ -72,21 +76,26 @@ const MedCard = () => {
       <View style={styles.content}>
         <Image source={product.image} style={styles.image} resizeMode="contain" />
 
-        <Text style={styles.price}>Rs. {product.variants[0].price}</Text>
+        <Text style={styles.price}>Rs. {product.variants[selectedVariantIndex].price}</Text>
         <Text style={styles.name}>{product.name}</Text>
-        <Text style={styles.description}>
-          {product.description}
-        </Text>
+        <Text style={styles.description}>{product.description}</Text>
 
-        {product.variants.map((variant, index) => (
-                <View key={index}>
-                  
-                  <View style={styles.dosageTag}>
-                    <Text style={styles.dosageText}>{variant.mg} mg</Text>
-                  </View>
-                </View>
-        ))}
+        {/* Dosage Buttons */}
+        <View style={styles.dosageContainer}>
+          {product.variants.map((variant, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.dosageTag, selectedVariantIndex === index && styles.dosageSelected]}
+              onPress={() => setSelectedVariantIndex(index)}
+            >
+              <Text style={[styles.dosageText, selectedVariantIndex === index && styles.dosageTextSelected]}>
+                {variant.mg} mg
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
+        {/* Quantity Selector */}
         <View style={styles.quantitySelector}>
           <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))}>
             <Text style={styles.adjustBtn}>-</Text>
@@ -97,21 +106,27 @@ const MedCard = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Buttons */}
         <View style={styles.buttonRow}>
-        <TouchableOpacity
-  style={styles.button}
-  onPress={() => navigation.navigate('Checkout')}
->
-  <Text style={styles.buttonText}>Buy Now</Text>
-</TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              navigation.navigate('Checkout', {
+                id: product._id,
+                name: product.name,
+                dosage: product.variants[selectedVariantIndex].mg,
+                price: product.variants[selectedVariantIndex].price,
+                quantity,
+                singleItem: true,
+              })
+            }
+          >
+            <Text style={styles.buttonText}>Buy Now</Text>
+          </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={addToCart}
->
-  <Text style={styles.buttonText}>Add to Cart</Text>
-</TouchableOpacity>
-
+          <TouchableOpacity style={styles.button} onPress={addToCart}>
+            <Text style={styles.buttonText}>Add to Cart</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -127,15 +142,8 @@ const styles = StyleSheet.create({
   },
   topSection: {
     backgroundColor: '#5E8370',
-    padding: 20,
+    padding: statusBarHeight+10,
     alignItems: 'center',
-  },
-  backArrow: {
-    position: 'left',
-    left: -150,
-    top: 20,
-    fontSize: 22,
-    color: '#fff',
   },
   title: {
     fontSize: 22,
@@ -174,23 +182,30 @@ const styles = StyleSheet.create({
   },
   dosageContainer: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   dosageTag: {
-    backgroundColor: 'orange',
+    backgroundColor: '#FFD9B3', // Light orange (unselected)
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    margin: 4,
+  },
+  dosageSelected: {
+    backgroundColor: '#FF8C00', // Bright orange (selected)
   },
   dosageText: {
-    color: '#fff',
+    color: '#333',
     fontWeight: 'bold',
+  },
+  dosageTextSelected: {
+    color: '#fff',
   },
   quantitySelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
     marginBottom: 20,
   },
   adjustBtn: {
@@ -204,6 +219,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginHorizontal: 10,
   },
   buttonRow: {
     flexDirection: 'row',

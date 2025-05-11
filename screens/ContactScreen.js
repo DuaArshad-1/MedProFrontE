@@ -5,11 +5,24 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { Linking,Alert  } from 'react-native';
 
 const ContactUs = () => {
-    const navigation = useNavigation();
-  
+  const navigation = useNavigation();
 
+  const openSocialLink = async (appUrl, webUrl) => {
+    try {
+      const supported = await Linking.canOpenURL(appUrl);
+      if (supported) {
+        await Linking.openURL(appUrl);
+      } else {
+        await Linking.openURL(webUrl);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Unable to open the link.");
+    }
+  };
+    
   return (
     <SafeAreaView style={styles.container}>
        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10 }}>
@@ -23,46 +36,70 @@ const ContactUs = () => {
         If you have any inquiries get in touch with us. We'll be happy to help you.
       </Text>
 
-      <View style={styles.inputContainer}>
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => Linking.openURL('tel:03039943773')}
+      >
         <Icon name="call-outline" size={20} color="#000" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="03002001004"
-          placeholderTextColor="#666"
-        />
-      </View>
+        <Text style={styles.linkText}>03039943773</Text>
+      </TouchableOpacity>
 
-      <View style={styles.inputContainer}>
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => Linking.openURL('mailto:medprostoreofficial@gmail.com')}
+      >
         <Icon name="mail-outline" size={20} color="#000" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="taylorswift13@gmail.com"
-          placeholderTextColor="#666"
-        />
-      </View>
+        <Text style={styles.linkText}>medprostoreofficial@gmail.com</Text>
+      </TouchableOpacity>
 
       <Text style={styles.sectionTitle}>Social Media</Text>
 
-      <View style={styles.socialRow}>
+      <TouchableOpacity
+        style={styles.socialRow}
+        onPress={() =>
+          openSocialLink(
+            'fb://facewebmodal/f?href=https://www.facebook.com/abubakr.muhammad.5785',
+            'https://www.facebook.com/abubakr.muhammad.5785'
+          )
+        }
+      >
         <FontAwesome name="facebook" size={22} color="white" style={styles.socialIcon} />
         <Text style={styles.socialText}>
           Stay updated, connect, and engage with us on Facebook.
         </Text>
-      </View>
+      </TouchableOpacity>
 
-      <View style={styles.socialRow}>
+      <TouchableOpacity
+        style={styles.socialRow}
+        onPress={() =>
+          openSocialLink(
+            'instagram://user?username=m_abubakr__',
+            'https://www.instagram.com/m_abubakr__/'
+          )
+        }
+      >
         <FontAwesome name="instagram" size={22} color="white" style={styles.socialIcon} />
         <Text style={styles.socialText}>
           Explore our visual world and discover the beauty of our brand.
         </Text>
-      </View>
+      </TouchableOpacity>
 
-      <View style={styles.socialRow}>
+
+      <TouchableOpacity
+        style={styles.socialRow}
+        onPress={() =>
+          openSocialLink(
+            'twitter://user?screen_name=yourusername',
+            'https://twitter.com/yourusername'
+          )
+        }
+      >
         <MaterialCommunityIcons name="twitter" size={22} color="white" style={styles.socialIcon} />
         <Text style={styles.socialText}>
           Follow us for real-time updates and lively discussions.
         </Text>
-      </View>
+      </TouchableOpacity>
+
 
       {/* Bottom Nav
       <View style={styles.bottomNav}>
@@ -152,6 +189,12 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
   },
+  linkText: {
+    fontSize: 16,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+  
 });
 
 export default ContactUs;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,33 +10,35 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-
-const categories = [
-  'Anticoagulants (Blood Thinners)',
-  'Analgesics (Pain Relievers)',
-  'Antibiotics (Bacterial Infections)',
-  'Antivirals (Fight Viral Infections)',
-  'Antifungals (Fungal Infections)',
-  'Antipyretics (Reduce Fever)',
-  'Antihistamines (Allergies)',
-  'Antidepressants (Treat Anxiety)',
-  'Antipsychotics (Psychiatric)',
-  'Cardiovascular Medicines',
-  'Antidiabetic Drugs',
-];
+import axiosInstance from '../config';
 
 const CategoryScreen = () => {
   const navigation = useNavigation();
+  const [categories,setCategories] = useState([])
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosInstance.get('/category/findall');
+      response.data = response.data.map((category) => category.name);
+      // console.log('Categories:', response.data);
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>MED PRO</Text>
       <Text style={styles.subtitle}>Categories</Text>
 
-      <View style={styles.searchBox}>
+      {/* <View style={styles.searchBox}>
         <Icon name="search-outline" size={20} color="#888" style={{ marginRight: 8 }} />
-        <TextInput placeholder="Search" placeholderTextColor="#888" style={{ flex: 1 }} />
-      </View>
+        <TextInput placeholder="Search" placeholderTextColor="#888" style={{ flex: 1 }}  />
+      </View> */}
 
       <FlatList
         data={categories}
@@ -44,7 +46,7 @@ const CategoryScreen = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.categoryButton}
-            onPress={() => navigation.navigate('SubCategories', { category: item })}
+            onPress={() => navigation.navigate('subCategoryMeds', { category: item })}
           >
             <Text style={styles.categoryText}>{item}</Text>
             <Icon name="chevron-forward" size={16} color="#fff" />
@@ -52,13 +54,6 @@ const CategoryScreen = () => {
         )}
       />
 
-      {/* <View style={styles.bottomNav}>
-        <Icon name="home-outline" size={24} />
-        <Icon name="call-outline" size={24} />
-        <Icon name="camera-outline" size={24} />
-        <Icon name="cart-outline" size={24} />
-        <Icon name="person-outline" size={24} />
-      </View> */}
     </SafeAreaView>
   );
 };

@@ -1,90 +1,68 @@
-import React, { use } from 'react';
-import { ScrollView } from 'react-native';
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
-import { useEffect } from 'react';
-import { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, FlatList, Image, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../config';
 
 const HomePage = () => {
   const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [productName, setProductName] = useState('');
+
   useEffect(() => {
     fetchProducts();
-  }
-  , []);
+  }, []);
+
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get('/medicines/'); // Adjust the endpoint as needed
-      // console.log('Products:', response.data.medicines);
-      setProducts(response.data.medicines); // Adjust based on your API response structure
-      // console.log('Products:', response.data);
-      // setLoading(false);
+      const response = await axiosInstance.get('/medicines/');
+      setProducts(response.data.medicines);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setLoading(false);
-    } 
-  }
+    }
+  };
+
   const fetchCategories = async (name) => {
     try {
-      const response = await axiosInstance.get(`/category?name=${name}`); // Adjust the endpoint as needed
-      // console.log('Categories:', response.data);
+      const response = await axiosInstance.get(`/category?name=${name}`);
       setProducts(response.data);
-
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  }
-  const handleSearch = async (text)=>{
+  };
+
+  const handleSearch = async (text) => {
     setSearchQuery(text);
     if (text) {
       try {
         const response = await axiosInstance.get(`medicines/search?name=${text}`);
-        setProductName(products)
         setProducts(response.data);
-
       } catch (error) {
         console.error('Error fetching products:', error);
-        setProducts([]); // Clear products on error
+        setProducts([]);
       }
     } else {
-      fetchProducts(); // Fetch all products if search query is empty
+      fetchProducts();
     }
-  }
+  };
+
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('MedCard', { product: item })}
     >
-      <Image source={require('../assets/medpro4.png')}style={styles.productImage}resizeMode="contain"/>
-      
+      <Image source={require('../assets/medpro4.png')} style={styles.productImage} resizeMode="contain" />
       <Text style={styles.productName}>{item.name}</Text>
-      {/* <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text> */}
-      <Text style={styles.productPrice}> Rs. {item.variants?.[0]?.price ?? 'N/A'}
-      </Text>
+      <Text style={styles.productPrice}>Rs. {item.variants[0].price}</Text>
 
-      
-      {item.variants.map((variant, index) => (
-        <View key={index}>
-          
-          <View style={styles.dosageTag}>
+      <View style={styles.dosageRow}>
+        {item.variants.map((variant, index) => (
+          <View key={index} style={styles.dosageTag}>
             <Text style={styles.dosageText}>{variant.mg} mg</Text>
           </View>
-        </View>
-  ))}
+        ))}
+      </View>
     </TouchableOpacity>
   );
 
@@ -95,64 +73,55 @@ const HomePage = () => {
         <Text style={styles.title}>MED PRO</Text>
         <Text style={styles.subtitle}>Recommended</Text>
         <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="Search" value={searchQuery} onChangeText={handleSearch} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
           <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
             <Text style={styles.bellIcon}>🔔</Text>
           </TouchableOpacity>
-
         </View>
         <ScrollView
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  contentContainerStyle={styles.categories}
->
-{[
-  'General',
-  'Painkiller',
-  'Fever',
-  'Dermatology',
-  'Orthopedics',
-  'AntiSeptics',
-  'Pain Relief',
-  'Cardiology',
-  'Allergy',
-  'Neurology',
-  'Gastroenterology',
-  'Vitamins',
-  'ENT',
-  'Psychotic',
-  'Diabetes',
-  'Pediatrics', 
-].map((cat) => (
-    <TouchableOpacity
-      key={cat}
-      style={[
-        styles.categoryButton,
-        selectedCategory === cat && styles.categoryButtonSelected,
-      ]}
-      onPress={() =>{if(cat!=='General')fetchCategories(cat);}}
-    >
-      <Text style={[
-        styles.categoryText,
-        selectedCategory === cat && styles.categoryTextSelected
-      ]}>
-        {cat}
-      </Text>
-    </TouchableOpacity>
-  ))}
-</ScrollView>
-
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categories}
+        >
+          {[
+            'General', 'Painkiller', 'Fever', 'Dermatology', 'Orthopedics',
+            'AntiSeptics', 'Pain Relief', 'Cardiology', 'Allergy', 'Neurology',
+            'Gastroenterology', 'Vitamins', 'ENT', 'Psychotic', 'Diabetes', 'Pediatrics',
+          ].map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[
+                styles.categoryButton,
+                selectedCategory === cat && styles.categoryButtonSelected,
+              ]}
+              onPress={() => {
+                setSelectedCategory(cat);
+                if (cat !== 'General') fetchCategories(cat);
+              }}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === cat && styles.categoryTextSelected,
+                ]}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
-
-      
 
       <FlatList
         data={products}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
-        // keyExtractor={(item) => item.id}
-        keyExtractor={(item) => item._id.toString()}
-
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.productGrid}
         renderItem={renderProduct}
       />
@@ -205,16 +174,22 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 6,
   },
+  categoryButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#6B8D79',
+    borderRadius: 12,
+  },
+  categoryButtonSelected: {
+    backgroundColor: '#B8DBCB',
+  },
   categoryText: {
-    marginRight: 10,
     color: '#fff',
     fontWeight: 'bold',
   },
-
   categoryTextSelected: {
-    color: '#2E4F3D', // selected text color
+    color: '#2E4F3D',
   },
-  
   productGrid: {
     padding: 16,
   },
@@ -240,11 +215,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 6,
   },
+  dosageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6, // Use margin if gap is not supported
+    marginTop: 6,
+  },
   dosageTag: {
     backgroundColor: 'orange',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
+    margin: 2, // fallback for gap
   },
   dosageText: {
     color: 'white',

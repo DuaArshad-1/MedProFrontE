@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   View,
@@ -11,8 +12,9 @@ import {
 import { Ionicons } from '@expo/vector-icons'; // For icons
 import axiosInstance from '../config'; // Adjust the import based on your project structure
 import { useNavigation } from '@react-navigation/native';
+
 const SignupPage = () => {
-  const navigation= useNavigation();
+  const navigation = useNavigation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,21 +22,30 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errors, setErrors] = useState({});
-
-  const handleRegister = async() => {
-    setErrors({}); // clear previous errors
   
-    try {
+  // State for success message
+  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
 
+  const handleRegister = async () => {
+    setErrors({}); // clear previous errors
+
+    try {
       const response = await axiosInstance.post("/users/register", {
         name,
         email,
-        phone:phoneNumber,
+        phone: phoneNumber,
         password,
       });
 
       if (response.status === 201 || response.status === 200) {
-        navigation.navigate("Login");
+        // Show success message
+        setSuccessMessageVisible(true);
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessageVisible(false);
+          // Navigate to Home page
+          navigation.navigate("Home");
+        }, 3000);
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -45,6 +56,7 @@ const SignupPage = () => {
       }
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#7A9E8F" />
@@ -64,7 +76,7 @@ const SignupPage = () => {
             onChangeText={setName}
           />
         </View>
-        {/* {errors.username && <Text style={styles.error}>{errors.username}</Text>} */}
+
         <View style={styles.inputWrapper}>
           <Ionicons name="mail-outline" size={20} color="gray" style={styles.icon} />
           <TextInput
@@ -75,7 +87,7 @@ const SignupPage = () => {
             onChangeText={setEmail}
           />
         </View>
-        {/* {errors.email && <Text style={styles.error}>{errors.email}</Text>} */}
+
         <View style={styles.inputWrapper}>
           <Ionicons name="call-outline" size={20} color="gray" style={styles.icon} />
           <TextInput
@@ -86,9 +98,7 @@ const SignupPage = () => {
             onChangeText={setPhoneNumber}
           />
         </View>
-        {/* {errors.phoneNumber && (
-                <Text style={styles.error}>{errors.phoneNumber}</Text>
-              )} */}
+
         <View style={styles.inputWrapper}>
           <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
           <TextInput
@@ -106,7 +116,6 @@ const SignupPage = () => {
             />
           </TouchableOpacity>
         </View>
-        {/* {errors.password && <Text style={styles.error}>{errors.password}</Text>} */}
 
         <View style={styles.checkboxContainer}>
           <TouchableOpacity onPress={() => setIsChecked(!isChecked)} style={styles.checkbox}>
@@ -120,6 +129,21 @@ const SignupPage = () => {
         <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
           <Text style={styles.signupButtonText}>Signup</Text>
         </TouchableOpacity>
+
+        {/* Show success message */}
+        {successMessageVisible && (
+          <View style={styles.successMessageContainer}>
+            <Text style={styles.successMessage}>Signed up successfully ✔</Text>
+          </View>
+        )||
+        !successMessageVisible && (
+          <View style={styles.error}>
+            <Text>{errors.name || errors.email || errors.phone || errors.password}</Text>
+          </View>
+        )}
+
+
+        
       </View>
     </SafeAreaView>
   );
@@ -206,6 +230,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signupButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  successMessageContainer: {
+    position: 'absolute',
+    // top: '50%',
+    // left: '50%',
+    // transform: [{ translateX: -75 }, { translateY: -25 }],
+    // transform: [{ translateX: -150 }, { translateY: -25 }],
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    zIndex: 1,
+    alignSelf: 'center',
+    
+    marginTop: 20,
+    width: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  successMessage: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

@@ -2,82 +2,60 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-// import BottomTabs from '../screens/BottomTabs'; // your consistent bottom bar
-import axios from 'axios';
 import axiosInstance from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MedImage from '../assets/medpro4.png'; 
+import MedImage from '../assets/medpro4.png';
+import Constants from 'expo-constants';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
-// let token = await AsyncStorage.getItem('token');
-  
+const statusBarHeight = Constants.statusBarHeight;
+
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const navigation = useNavigation();
 
-  // const token = 'your-jwt-token-here'; // replace with your auth context or prop
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = await AsyncStorage.getItem('token');
-      if (token) {
-        setToken(token);
-        console.log('Retrieved token:', storedToken);
-        // Now you can use this token to call your backend
-      }
-    };
+  // useEffect(() => {
+  //   const fetchToken = async () => {
+  //     const token = await AsyncStorage.getItem('token');
+  //     if (token) {
+  //       fetchCart();
+  //     }
+  //   };
 
-    fetchToken();
-    fetchCart();
-  }, []);
+  //   fetchToken();
+  // }, []);
 
-  // const fetchCart = async () => {
-  //   // try {
-  //   //   const res = await axios.get('http://localhost:3000/users/getCart', {
-  //   //     headers: { Authorization: `Bearer ${token}` },
-  //   //   });
-  //   //   setCartItems(res.data.items);
-  //   //   calculateTotal(res.data.items);
-  //   // } catch (error) {
-  //   //   console.error(error);
-  //   // }
-  //   const Item = [
-  //     {
-  //       _id: '1',
-  //       name: 'Paracetamol',
-  //       price: 50,
-  //       quantity: 2,
-  //       image: MedImage, // dummy image
-  //     },
-  //     {
-  //       _id: '2',
-  //       name: 'Ibuprofen',
-  //       price: 80,
-  //       quantity: 1,
-  //       image: MedImage,
-  //     },
-  //   ];
-  //   setCartItems(Item);
-  //   calculateTotal(Item);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchToken = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          fetchCart();
+        }
+      };
   
-
-  // };
+      fetchToken();
+    }, [])
+  );
+  
 
   const fetchCart = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const res = await axiosInstance.get('/cart/', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization:` Bearer ${token}` },
       });
-  
+
       const items = res.data.map(item => ({
-        _id: item._id,
+        id: item._id,
         name: item.medicineId[0]?.name || 'Unnamed Medicine',
         price: item.variant.price,
         quantity: item.quantity,
-        image: item.imageUrl, // Replace with actual image URL if available in DB
+        image: item.imageUrl,
         dose: item.variant.mg
       }));
-  
       setCartItems(items);
       calculateTotal(items);
     } catch (error) {
@@ -85,30 +63,31 @@ const CartScreen = () => {
     }
   };
   
+  const calculateTotal = (items) => {
+    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    setTotal(total);
+  };
+
   const updateQuantity = async (itemId, newQuantity) => {
     const token = await AsyncStorage.getItem('token');
-  
     try {
       if (newQuantity < 1) {
-        // If quantity goes to 0, delete the item
         await axiosInstance.delete(`/cart/${itemId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        // Otherwise, just update the quantity
         await axiosInstance.put(
           `/cart/${itemId}`,
           { quantity: newQuantity },
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-      fetchCart(); // Refresh cart in both cases
+      fetchCart(); // Refresh cart
     } catch (error) {
       console.error('Error updating/removing cart item:', error);
     }
   };
-  
-  
+
   const removeCartItem = async (itemId) => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -120,30 +99,6 @@ const CartScreen = () => {
       console.error('Error removing item from cart:', error);
     }
   };
-  
-
-  // const updateQuantity = async (itemId, quantity) => {
-  //   // try {
-  //   //   const res = await axios.put(
-  //   //     `http://your-server/cart/${itemId}`,
-  //   //   );
-  //   //   fetchCart();
-  //   // } catch (err) {
-  //   //   console.error(err);
-  //   // }
-  //   if (quantity < 1) return; // Prevent quantity going below 1
-
-  //   const updatedCart = cartItems.map(item => 
-  //     item._id === itemId ? { ...item, quantity } : item
-  //   );
-  //   setCartItems(updatedCart);
-  //   calculateTotal(updatedCart);
-  // };
-
-  const calculateTotal = (items) => {
-    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    setTotal(total);
-  };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -151,18 +106,18 @@ const CartScreen = () => {
       <View style={styles.details}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>Rs. {item.price}</Text>
-        <Text style={styles.dose}> {item.dose}mg</Text>
+        <Text style={styles.dose}>{item.dose}mg</Text>
         <View style={styles.quantityRow}>
-          <TouchableOpacity onPress={() => updateQuantity(item._id, item.quantity - 1)}>
+          <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantity - 1)}>
             <Ionicons name="remove-circle-outline" size={24} />
           </TouchableOpacity>
           <Text style={styles.qty}>{item.quantity}</Text>
-          <TouchableOpacity onPress={() => updateQuantity(item._id, item.quantity + 1)}>
+          <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantity + 1)}>
             <Ionicons name="add-circle-outline" size={24} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => removeCartItem(item._id)} style={{ marginLeft: 180, marginBottom:-5 }}>
-        <Ionicons name="trash-outline" size={22} color="orange" />
-      </TouchableOpacity>
+            <Ionicons name="trash-outline" size={22} color="orange" />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -172,30 +127,38 @@ const CartScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>MED PRO</Text>
       <Text style={styles.cartLabel}>Cart</Text>
+      {!cartItems.length && (
+        <View>
+          <Text style={styles.text}>Your cart is empty</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ marginTop: 20,color: '#345c45',backgroundColor:'#345c45',padding:10,borderRadius:50 }}>
+            <Text style={{ color: 'white', fontSize: 16 ,textAlign:'center' }}>Go to Home</Text>  
+          </TouchableOpacity>
+        </View>
+      )}
       <FlatList
         data={cartItems}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
+      
       <View style={styles.checkoutContainer}>
-        <Text style={styles.total}>Total: Rs.{total}</Text>
+        <Text style={styles.total}>Total: Rs. {total}</Text>
         <TouchableOpacity
-  style={styles.checkoutButton}
-  onPress={() => navigation.navigate('Checkout')}
->
-  <Text style={styles.checkoutText}>Checkout</Text>
-</TouchableOpacity>
+          style={styles.checkoutButton}
+          onPress={() => navigation.navigate('Checkout', { cartItems, total,singleItem:false})}//the items that are checkeed out should be deleted from the cart
+        >
+          <Text style={styles.checkoutText}>Checkout</Text>
+        </TouchableOpacity>
 
       </View>
-      {/* <BottomTabs /> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#a2b1a8', padding: 10 },
-  title: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 20 },
+  container: { flex: 1, backgroundColor: '#a2b1a8',padding:5, paddingTop: statusBarHeight+10 },
+  title: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 30 },
   cartLabel: { fontSize: 18, textAlign: 'center', marginBottom: 10 },
   card: {
     flexDirection: 'row',
@@ -221,6 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkoutText: { color: 'white', fontSize: 16 },
+  text: { fontSize: 16, color: '#333',textAlign: 'center', marginTop: 20 },
 });
 
 export default CartScreen;

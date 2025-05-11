@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,37 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Ensure you have vector icons installed
+import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../config';
+import { useRoute } from '@react-navigation/native';
 
 const ForgotPassword = () => {
   const [mode, setMode] = useState('email'); // 'email' or 'phone'
   const [inputValue, setInputValue] = useState('');
-
+  const handleForgotPassword = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await axiosInstance.post(
+        '/users/forgot-password',
+        {
+          [mode]: inputValue,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert('Password reset link sent to your email/phone');
+    } catch (error) {
+      console.error('Error sending password reset link:', error.message);
+    }
+  }
+  // useEffect(() => {
+  //   handleForgotPassword();
+  // }, [inputValue]);
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ADCBB6" />
@@ -30,7 +56,7 @@ const ForgotPassword = () => {
 
       <Text style={styles.heading}>Forgot Your Password?</Text>
       <Text style={styles.subtext}>
-        Enter your email or your phone number, we will send you a confirmation code
+        Enter your email, we will send you a confirmation code
       </Text>
 
       <View style={styles.toggleContainer}>
@@ -51,7 +77,7 @@ const ForgotPassword = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[
             styles.toggleButton,
             mode === 'phone' && styles.toggleButtonActive,
@@ -66,7 +92,7 @@ const ForgotPassword = () => {
           >
             Phone
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.inputWrapper}>
@@ -86,7 +112,7 @@ const ForgotPassword = () => {
         <Icon name="checkmark-circle-outline" size={20} color="gray" />
       </View>
 
-      <TouchableOpacity style={styles.resetButton}>
+      <TouchableOpacity style={styles.resetButton} onPress={handleForgotPassword}>
         <Text style={styles.resetText}>Reset Password</Text>
       </TouchableOpacity>
     </SafeAreaView>

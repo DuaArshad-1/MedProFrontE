@@ -4,16 +4,20 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { launchImageLibraryAsync } from 'expo-image-picker';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { useRoute, useNavigation } from '@react-navigation/native';
-
+import axiosInstance from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width, height } = Dimensions.get('window');
 
 export default function EditProfileScreen() {
   const [image, setImage] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-        const navigation = useNavigation();
-    
+  const navigation = useNavigation();
+  const route = useRoute();
+  const user = route.params.user; // Assuming you pass user data from the previous screen
+  const [name, setName] = useState(user.name || '');
+  const [email, setEmail] = useState(user.email || '');
+  const [phone, setPhone] = useState(user.phone || '');
+  const [address, setAddress] = useState([user.address || '']);
+  
   const pickImage = async () => {
     let result = await launchImageLibraryAsync({
       mediaTypes: 'Images',
@@ -24,6 +28,28 @@ export default function EditProfileScreen() {
       setImage(result.assets[0].uri);
     }
   };
+  const editProfile = async () => {
+
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axiosInstance.put('/users/profile',{
+        name,
+        email,
+        phone,
+        address,
+        image
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log(response.data);
+      navigation.navigate('Profile');
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -81,9 +107,19 @@ export default function EditProfileScreen() {
         />
       </View>
 
+      <View style={styles.inputContainer}>
+        <Ionicons name="home-outline" size={RFPercentage(2.5)} color="#666" />
+        <TextInput
+          placeholder="Enter your address"
+          style={styles.input}
+          value={address}
+          onChangeText={setAddress}
+        />
+      </View>
+
       <TouchableOpacity
   style={styles.saveButton}
-  onPress={() => navigation.navigate('Profile')}
+  onPress={editProfile}
 >
   <Text style={styles.saveText}>Save Settings</Text>
 </TouchableOpacity>
