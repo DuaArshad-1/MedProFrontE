@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,27 +7,56 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { FontAwesome, Feather, Ionicons } from '@expo/vector-icons';
-import BottomTabs from './BottomTabs';
+import { FontAwesome, Feather, Ionicons, Entypo } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
+import axiosInstance from '../config'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
 
-const initialReviews = [
-  { name: 'Paracetamol', rating: 4, isFavorite: true },
-  { name: 'Ibuprofen', rating: 3, isFavorite: false },
-];
+const statusBarHeight = Constants.statusBarHeight;
 
 const ReviewScreen = ({ navigation }) => {
-  const [reviews, setReviews] = useState(initialReviews);
+  const route = useRoute();
+  const { review } = route.params || {};
 
-  const updateRating = (index, newRating) => {
-    const updated = [...reviews];
-    updated[index].rating = newRating;
-    setReviews(updated);
-  };
+  const [reviews, setReviews] = useState([]);
+  const fetchUserReviews = async () => {
+    try{
+      const token = await AsyncStorage.getItem('token');
+      const res = await axiosInstance.get('/review/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setReviews(res.data);
+      // console.log(res.data);
+    }catch (error) {
+      // console.error('Error fetching user reviews:', error);
+      Alert.alert('Error', 'Failed to load reviews. Please try again later.');
 
-  const toggleFavorite = (index) => {
-    const updated = [...reviews];
-    updated[index].isFavorite = !updated[index].isFavorite;
-    setReviews(updated);
+    }
+  }
+  useEffect(() => {
+      fetchUserReviews();
+  }, [review]);
+
+
+  const deleteReview = async(id) => {
+    try{
+      const token = await AsyncStorage.getItem('token');
+      const res = await axiosInstance.delete(`/review/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      
+      fetchUserReviews();
+    }
+    catch (error) {
+      // console.error('Error deleting review:', error);
+      Alert.alert('Error', 'Failed to delete review. Please try again later.');
+    }
   };
 
   return (
@@ -42,20 +71,7 @@ const ReviewScreen = ({ navigation }) => {
           <Text style={styles.subtitle}>My Reviews</Text>
         </View>
 
-        {/* Filters */}
-        <View style={styles.monthContainer}>
-          <Text style={styles.monthText}>Month</Text>
-          <View style={styles.filterButtons}>
-            <TouchableOpacity style={styles.filterBtn}>
-              <Text style={styles.filterText}>Recent</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterBtn}>
-              <Text style={styles.filterText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Reviews */}
+        {/* Reviews List */}
         {reviews.map((item, index) => (
           <View key={index} style={styles.reviewItem}>
             <Image
@@ -63,37 +79,46 @@ const ReviewScreen = ({ navigation }) => {
               style={styles.medImage}
             />
             <View style={styles.medInfo}>
-              <Text style={styles.medName}>{item.name}</Text>
-              <Text style={styles.category}>Category • $$ • Supporting line text</Text>
+              <Text style={styles.medName}>{item.medicineId.name}</Text>
+              {item.comment ? (
+                <Text style={styles.commentText}>“{item.comment}”</Text>
+              ) : null}
               <View style={styles.stars}>
                 {[...Array(5)].map((_, i) => (
-                  <TouchableOpacity
+                  <FontAwesome
                     key={i}
-                    onPress={() => updateRating(index, i + 1)}
-                  >
-                    <FontAwesome
-                      name={i < item.rating ? 'star' : 'star-o'}
-                      size={16}
-                      color="green"
-                      style={{ marginRight: 4 }}
-                    />
-                  </TouchableOpacity>
+                    name={i < item.rating ? 'star' : 'star-o'}
+                    size={16}
+                    color="green"
+                    style={{ marginRight: 4 }}
+                  />
                 ))}
               </View>
             </View>
-            <TouchableOpacity onPress={() => toggleFavorite(index)}>
-              <Feather
-                name={item.isFavorite ? 'heart' : 'heart'}
-                size={22}
-                color={item.isFavorite ? 'red' : '#444'}
-              />
-            </TouchableOpacity>
+
+            <View style={{ alignItems: 'center' }}>
+              {/* <TouchableOpacity onPress={() => toggleFavorite(index)}>
+                <Feather
+                  name="heart"
+                  size={22}
+                  color={item.isFavorite ? 'red' : '#444'}
+                />
+              </TouchableOpacity> */}
+              {/* {console.log(item.medicineId._id)} */}
+              
+              <TouchableOpacity onPress={() => deleteReview(item._id)}>
+                <Entypo
+                  name="trash"
+                  size={20}
+                  color="black"
+                  style={{ marginTop: 8 }}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
       </ScrollView>
-      
     </View>
-    
   );
 };
 
@@ -101,7 +126,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ADCBB6' },
   header: {
     backgroundColor: '#5E8370',
-    paddingTop: 50,
+    paddingTop: statusBarHeight + 10,
     paddingBottom: 20,
     paddingHorizontal: 16,
   },
@@ -117,23 +142,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
-  monthContainer: {
-    padding: 16,
-    backgroundColor: '#D9E5DB',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  monthText: { fontWeight: 'bold', color: '#2e4d3d' },
-  detailText: { color: '#2e4d3d' },
-  filterButtons: { flexDirection: 'row', gap: 10 },
-  filterBtn: {
-    backgroundColor: '#5E8370',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  filterText: { color: '#fff', fontWeight: 'bold' },
   reviewItem: {
     flexDirection: 'row',
     backgroundColor: '#E0E0E0',
@@ -146,19 +154,13 @@ const styles = StyleSheet.create({
   medImage: { width: 50, height: 50, resizeMode: 'contain', marginRight: 10 },
   medInfo: { flex: 1 },
   medName: { fontSize: 16, fontWeight: 'bold', color: '#1B1B1B' },
-  category: { fontSize: 12, color: '#666' },
-  stars: { flexDirection: 'row', marginTop: 4 },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 12,
-    backgroundColor: '#D9E5DB',
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+  commentText: {
+    fontStyle: 'italic',
+    color: '#333',
+    marginTop: 4,
+    marginBottom: 2,
   },
+  stars: { flexDirection: 'row', marginTop: 4 },
 });
 
 export default ReviewScreen;

@@ -3,13 +3,30 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, FlatList, Image, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../config';
+import { useFocusEffect } from '@react-navigation/native';
+import { BackHandler } from 'react-native';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
+
+const statusBarHeight = Constants.statusBarHeight;
 
 const HomePage = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp(); // Exit the app
+        return true;
+      };
+  
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  
+      return () => subscription.remove();
+    }, [])
+  );
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -19,7 +36,8 @@ const HomePage = () => {
       const response = await axiosInstance.get('/medicines/');
       setProducts(response.data.medicines);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      // console.error('Error fetching products:', error);
+      Alert.alert('Error', 'Failed to fetch products. Please try again later.');
     }
   };
 
@@ -28,7 +46,8 @@ const HomePage = () => {
       const response = await axiosInstance.get(`/category?name=${name}`);
       setProducts(response.data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // console.error('Error fetching categories:', error);
+      Alert.alert('Error', 'Failed to fetch categories. Please try again later.');
     }
   };
 
@@ -39,7 +58,8 @@ const HomePage = () => {
         const response = await axiosInstance.get(`medicines/search?name=${text}`);
         setProducts(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        // console.error('Error fetching products:', error);
+        Alert.alert('Error', 'Failed to fetch products. Please try again later.');
         setProducts([]);
       }
     } else {
@@ -89,9 +109,7 @@ const HomePage = () => {
           contentContainerStyle={styles.categories}
         >
           {[
-            'General', 'Painkiller', 'Fever', 'Dermatology', 'Orthopedics',
-            'AntiSeptics', 'Pain Relief', 'Cardiology', 'Allergy', 'Neurology',
-            'Gastroenterology', 'Vitamins', 'ENT', 'Psychotic', 'Diabetes', 'Pediatrics',
+            'General', 'Painkiller', 'Antibiotic', 'Blood Pressure', 'Cholesterol'
           ].map((cat) => (
             <TouchableOpacity
               key={cat}
@@ -102,6 +120,7 @@ const HomePage = () => {
               onPress={() => {
                 setSelectedCategory(cat);
                 if (cat !== 'General') fetchCategories(cat);
+                else fetchProducts();
               }}
             >
               <Text
@@ -133,11 +152,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ADCBB6',
+    
   },
   topSection: {
     backgroundColor: '#5E8370',
     padding: 16,
-    paddingTop: 30,
+    paddingTop: statusBarHeight + 20,
   },
   title: {
     fontSize: 22,

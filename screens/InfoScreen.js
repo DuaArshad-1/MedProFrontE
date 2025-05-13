@@ -5,7 +5,10 @@ const { width, height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import userImage from '../assets/users.jpg';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
 
+const statusBarHeight = Constants.statusBarHeight;
 const InfoScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -13,7 +16,7 @@ const InfoScreen = () => {
   // console.log('User:', user);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#b1c9bb' }}>
+    <View style={{ flex: 1, backgroundColor: '#b1c9bb', paddingTop: statusBarHeight }}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10, marginTop: 20, marginLeft: 5 }}>
         <Ionicons name="arrow-back" size={28} color="#333" />
       </TouchableOpacity>
@@ -53,7 +56,7 @@ const InfoScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: width * 0.05 },
+  container: { flex: 1, padding: 10, paddingTop: statusBarHeight + 10, backgroundColor: '#b1c9bb' },
 
   headerCard: {
     backgroundColor: '#1e3d36',
@@ -103,6 +106,7 @@ const styles = StyleSheet.create({
     width: '85%',
     backgroundColor: '#e7f2ed',
     borderRadius: 15,
+    alignSelf: 'center',
     padding: width * 0.05,
     shadowColor: '#000',
     shadowOpacity: 0.1,

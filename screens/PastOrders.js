@@ -11,15 +11,15 @@ import Constants from 'expo-constants';
 import { Alert } from 'react-native';
 
 const statusBarHeight = Constants.statusBarHeight;
-const PendingOrders = () => {
+const PastOrders = () => {
   const navigation = useNavigation();
   const [POrders, setPOrders] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [deliveryStatus, setDeliveryStatus] = useState('');
-  const hasFetchedPending = useRef(false);
+  const hasFetchedPast = useRef(false);
   const fetchDeliveryStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+      
       orders.map(async(order)=>{
         const orderId = order._id;
         const res = await axiosInstance.get('/delivery/status', {
@@ -30,8 +30,7 @@ const PendingOrders = () => {
             Authorization: `Bearer ${token}`,
           }
         });
-        setDeliveryStatus(res.data);
-        if (res.data !== "delivered"){
+        if (res.data === "delivered"){
           setPOrders((prev) => [...prev, order]); 
         }
       }
@@ -50,7 +49,6 @@ const PendingOrders = () => {
         },
       });
       setOrders(response.data);
-      // console.log('Fetched orders:', response.data);
     } catch (error) {
       // console.error('Error fetching orders:', error);
       Alert.alert('Error', 'Failed to load orders. Please try again later.');
@@ -60,15 +58,15 @@ const PendingOrders = () => {
     fetchOrders();
   }, []);
   useEffect(() => {
-    if (orders.length > 0 && !hasFetchedPending.current) {
+    if (orders.length > 0 && !hasFetchedPast.current) {
       fetchDeliveryStatus();
-      hasFetchedPending.current = true; // Prevent future runs
+      hasFetchedPast.current = true; // Prevent future runs
     }
   }, [orders]);
   const renderOrder = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('DeliveryDetails',{item,deliveryStatus})}
+      onPress={() => navigation.navigate('DeliveryDetails',{item})}
     >
       <View style={styles.cardHeader}>
         <Text style={styles.orderNumber}>{item.deliveryAddress}</Text>
@@ -79,27 +77,25 @@ const PendingOrders = () => {
       <Text style={styles.dateText}>No. of Medicines: {item.medicines.length}</Text>
     </TouchableOpacity>
   );
-  // console.log('Pending Orders:', POrders);
+
   return (
     <SafeAreaView style={styles.container}>
          <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10 }}>
       <Ionicons name="arrow-back" size={28} color="#333" />
     </TouchableOpacity>
       <Text style={styles.header}>MED PRO</Text>
-      <Text style={styles.subheader}>Pending Orders</Text>
-      
-      {POrders.length === 0 && (
-              <Text style={{ textAlign: 'center', marginTop: 20, fontSize: 16 }}>
-                No pending orders found.
-              </Text>
-            )}
+      <Text style={styles.subheader}>Past Orders</Text>
+        {POrders.length === 0 && (
+        <Text style={{ textAlign: 'center', marginTop: 20, fontSize: 16 }}>
+          No past orders found.
+        </Text>
+      )}
       <FlatList
         data={POrders}
         renderItem={renderOrder}
         keyExtractor={(item) => item._id}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
-
     </SafeAreaView>
   );
 };
@@ -161,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PendingOrders;
+export default PastOrders;

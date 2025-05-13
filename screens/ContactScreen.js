@@ -6,7 +6,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Linking,Alert  } from 'react-native';
+import Constants from 'expo-constants';
 
+const statusBarHeight = Constants.statusBarHeight;
 const ContactUs = () => {
   const navigation = useNavigation();
 
@@ -118,7 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#8DA397',
     padding: 20,
-    paddingTop: 50,
+    paddingTop: statusBarHeight + 10,
   },
   header: {
     fontSize: 24,

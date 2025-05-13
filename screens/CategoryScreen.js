@@ -11,7 +11,10 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../config';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
 
+const statusBarHeight = Constants.statusBarHeight;
 const CategoryScreen = () => {
   const navigation = useNavigation();
   const [categories,setCategories] = useState([])
@@ -26,7 +29,8 @@ const CategoryScreen = () => {
       // console.log('Categories:', response.data);
       setCategories(response.data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // console.error('Error fetching categories:', error);
+      Alert.alert('Error', 'Failed to fetch categories. Please try again later.');
     }
   };
   
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#8DA397',
-    paddingTop: 50,
+    paddingTop: statusBarHeight+20,
     paddingHorizontal: 20,
   },
   title: {

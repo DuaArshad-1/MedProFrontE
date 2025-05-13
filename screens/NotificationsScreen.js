@@ -11,7 +11,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import axiosInstance from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
+const statusBarHeight = Constants.statusBarHeight;
  
 const NotificationsScreen = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
@@ -26,7 +28,8 @@ const NotificationsScreen = ({ navigation }) => {
       });
       setNotifications(res.data);
     } catch (error) {
-      console.error('Failed to load notifications:', error.message);
+      // console.error('Failed to load notifications:', error.message);
+      Alert.alert('Error', 'Failed to load notifications. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +44,8 @@ const NotificationsScreen = ({ navigation }) => {
       });
       fetchNotifications();
     } catch (error) {
-      console.error('Error marking notification as read:', error.message);
+      // console.error('Error marking notification as read:', error.message);
+      Alert.alert('Error', 'Failed to mark notification as read. Please try again later.');
     }
   };
 
@@ -64,7 +68,8 @@ const NotificationsScreen = ({ navigation }) => {
             });
             fetchNotifications();
           } catch (error) {
-            console.error('Error deleting notification:', error.message);
+            // console.error('Error deleting notification:', error.message);
+            Alert.alert('Error', 'Failed to delete notification. Please try again later.');
           }
         },
         style: 'destructive',
@@ -102,12 +107,12 @@ const NotificationsScreen = ({ navigation }) => {
                   <Text style={styles.dateText}>{new Date(item.createdAt).toLocaleString()}</Text>
                   <Text style={styles.statusText}>{item.message}</Text>
                 </View>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={styles.statusButton}
                   onPress={() => navigation.navigate('DeliveryDetails')}
                 >
                   <Text style={styles.buttonText}>View Status</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 {/* <TouchableOpacity  //UNCOMMENT AFTER API CALLS IN DELIVERY DETAIL
   onPress={() => {
     if (notification.type === 'order' && notification.orderId) {
@@ -137,7 +142,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#5E8370',
-    paddingTop: 50,
+    paddingTop: statusBarHeight+10,
     paddingBottom: 20,
     paddingHorizontal: 16,
   },

@@ -14,6 +14,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axiosInstance from '../config';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
+
+const statusBarHeight = Constants.statusBarHeight;
 
 const SubCategoryMedsScreen = () => {
   const navigation = useNavigation();
@@ -24,7 +28,8 @@ const SubCategoryMedsScreen = () => {
       const response = await axiosInstance.get(`/category/?name=${category}`);
       setProducts(response.data);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      // console.error('Error fetching products:', error);
+      Alert.alert('Error', 'Failed to fetch products. Please try again later.');
     }
   };
   const [products, setProducts] = useState([]);
@@ -58,19 +63,19 @@ const SubCategoryMedsScreen = () => {
         <Text style={styles.title}>MED PRO</Text>
         <Text style={styles.subtitle}>{category} Medicines</Text>
 
-        <View style={styles.searchContainer}>
+        {/* <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Search" />
           <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
             <Text style={styles.bellIcon}>🔔</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       <FlatList
         data={products}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.productGrid}
         renderItem={renderProduct}
       />
@@ -86,7 +91,8 @@ const styles = StyleSheet.create({
   topSection: {
     backgroundColor: '#5E8370',
     padding: 16,
-    paddingTop: 30,
+    paddingTop: statusBarHeight + 30,
+
   },
   title: {
     fontSize: 22,

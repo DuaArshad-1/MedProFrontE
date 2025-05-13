@@ -11,7 +11,8 @@ import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/ve
 import axiosInstance from '../config';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import axios from 'axios';
+import { Alert } from 'react-native';
+
 const statusBarHeight = Constants.statusBarHeight;
 
 const { width, height } = Dimensions.get('window');
@@ -22,7 +23,7 @@ const ProfileScreen = ({ navigation }) => {
   const [settingsVisible, setSettingsVisible] = useState(false);
 
   const slideAnim = useState(new Animated.Value(height))[0];
-
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -37,7 +38,8 @@ const ProfileScreen = ({ navigation }) => {
         // console.log('User:', data.data);  
         setUser(data.data);
       } catch (err) {
-        console.error('Error fetching profile:', err);
+        // console.error('Error fetching profile:', err);
+        Alert.alert('Error', 'Failed to fetch profile. Please try again.');
       }
     };
   
@@ -52,13 +54,14 @@ const profileOptions = [
   { label: 'Help Center', icon: <Ionicons name="help-circle-outline" size={20} />, screen: 'Help' },
   { label: 'My Reviews', icon: <FontAwesome5 name="star-half-alt" size={18} />, screen: 'Reviews' },
   { label: 'Contact Us', icon: <MaterialIcons name="contact-mail" size={20} />, screen: 'Contact' },
+  { label: 'Logout', icon: <Feather name="log-out" size={20} />, screen: 'Login' },
   // { label: 'Edit Profile', icon: <MaterialIcons name="edit-attributes" size={20} />, screen: 'EditProfile' },
 
 ];
 const orderOptions = [
   { label: '    To Review', icon: <FontAwesome5 name="check" size={20} />, screen: 'Reviews' },
   // { label: 'To Pay', icon: <Feather name="credit-card" size={20} />, screen: 'Info' },
-  { label: '   Past Orders', icon: <FontAwesome5 name="history" size={20} />, screen: 'PendingOrders' },
+  { label: '   Past Orders', icon: <FontAwesome5 name="history" size={20} />, screen: 'PastOrders' },
   { label: ' Pending Orders', icon: <FontAwesome5 name="shipping-fast" size={20} />, screen: 'PendingOrders' },
   { label: '   Cart', icon: <Feather name="shopping-cart" size={20} />, screen: 'Cart' }
 ];
@@ -101,7 +104,7 @@ const closeOrders = () => {
 
 return (
   <View style={{ flex: 1, backgroundColor: '#b1c9bb' }}>
-  <ScrollView style={styles.container}>
+  <View style={styles.container}>
     <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10 }}>
       <Ionicons name="arrow-back" size={28} color="#333" />
     </TouchableOpacity>
@@ -120,7 +123,7 @@ return (
       </View>
 </View>
 
-<View style={styles.optionsList}>
+<ScrollView style={styles.optionsList}>
           {profileOptions.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -132,11 +135,14 @@ return (
                   openSettings();
                 } 
                 else if(item.label ==='Info'){
-                  console.log('User:', user);
                   navigation.navigate(item.screen, { user });
                 }
                 else if(item.label === 'Help Center'){
                   navigation.navigate(item.screen, { user });
+                }
+                else if(item.label === 'Logout'){
+                  AsyncStorage.removeItem('token');
+                  navigation.navigate(item.screen);
                 }
                 else {
                   navigation.navigate(item.screen);
@@ -148,8 +154,8 @@ return (
               <Feather name="chevron-right" size={20} color="#777" />
             </TouchableOpacity>
       ))}
-    </View>
-  </ScrollView>
+    </ScrollView>
+  </View>
 
   <Modal
     transparent
@@ -287,7 +293,7 @@ return (
 // });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: width * 0.05,marginTop: statusBarHeight+10 },
+  container: { flex: 1, padding: width * 0.05,paddingTop: statusBarHeight+10 },
   title: { fontSize: width * 0.08, fontWeight: 'bold', textAlign: 'center', color: '#2e4d3d' },
   subtitle: { fontSize: width * 0.05, textAlign: 'center', marginBottom: 20, color: '#2e4d3d' },
   headerCard: {

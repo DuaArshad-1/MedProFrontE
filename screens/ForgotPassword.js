@@ -14,7 +14,9 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../config';
 import { useRoute } from '@react-navigation/native';
+import { Alert } from 'react-native';
 
+const statusBarHeight = Constants.statusBarHeight;
 const ForgotPassword = () => {
   const [mode, setMode] = useState('email'); // 'email' or 'phone'
   const [inputValue, setInputValue] = useState('');
@@ -32,9 +34,16 @@ const ForgotPassword = () => {
           },
         }
       );
+      setInputValue('');
+      
       alert('Password reset link sent to your email/phone');
     } catch (error) {
-      console.error('Error sending password reset link:', error.message);
+      // console.error('Error sending password reset link:', error.message);
+      Alert.alert(
+        'Error',
+        'Failed to send password reset link. Please try again later.',
+        [{ text: 'OK' }]
+      );
     }
   }
   // useEffect(() => {
@@ -124,6 +133,7 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#a2b1a8',
       padding: 16,
+      paddingTop: statusBarHeight + 10,
     },
     header: {
       flexDirection: 'row',

@@ -12,7 +12,10 @@ import {
 import { Ionicons } from '@expo/vector-icons'; // For icons
 import axiosInstance from '../config'; // Adjust the import based on your project structure
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
 
+const statusBarHeight = Constants.statusBarHeight;
 const SignupPage = () => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -25,9 +28,11 @@ const SignupPage = () => {
   
   // State for success message
   const [successMessageVisible, setSuccessMessageVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleRegister = async () => {
     setErrors({}); // clear previous errors
+    setErrorMessage('');
 
     try {
       const response = await axiosInstance.post("/users/register", {
@@ -36,7 +41,12 @@ const SignupPage = () => {
         phone: phoneNumber,
         password,
       });
-
+      setEmail('');
+      setName('');
+      setPassword('');
+      setPhoneNumber('');
+      setIsChecked(false);
+      
       if (response.status === 201 || response.status === 200) {
         // Show success message
         setSuccessMessageVisible(true);
@@ -44,16 +54,26 @@ const SignupPage = () => {
         setTimeout(() => {
           setSuccessMessageVisible(false);
           // Navigate to Home page
-          navigation.navigate("Home");
+          navigation.navigate("Main",{
+            screen:'Home'
+          });
         }, 3000);
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
         const fieldErrors = error.response.data.errors || {};
         setErrors(fieldErrors);
+        setErrorMessage("Invalid credentials. Please check your input and try again.");
+
       } else {
-        console.error("Registration error:", error.message);
+        // console.error("Registration error:", error.message);
+        setErrorMessage("An error occurred while processing your request.");
+
       }
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+
     }
   };
 
@@ -135,15 +155,14 @@ const SignupPage = () => {
           <View style={styles.successMessageContainer}>
             <Text style={styles.successMessage}>Signed up successfully ✔</Text>
           </View>
-        )||
-        !successMessageVisible && (
-          <View style={styles.error}>
-            <Text>{errors.name || errors.email || errors.phone || errors.password}</Text>
+        )}
+
+        {errorMessage !== '' && (
+          <View style={styles.errorMessageContainer}>
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
           </View>
         )}
 
-
-        
       </View>
     </SafeAreaView>
   );
@@ -157,7 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#a2b1a8',
   },
   header: {
-    marginTop: 30,
+    paddingTop: statusBarHeight + 30,
     alignItems: 'center',
   },
   title: {
@@ -236,25 +255,36 @@ const styles = StyleSheet.create({
   },
   successMessageContainer: {
     position: 'absolute',
-    // top: '50%',
-    // left: '50%',
-    // transform: [{ translateX: -75 }, { translateY: -25 }],
-    // transform: [{ translateX: -150 }, { translateY: -25 }],
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -150 }, { translateY: -25 }],
     backgroundColor: '#4CAF50',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     zIndex: 1,
     alignSelf: 'center',
-    
-    marginTop: 20,
-    width: '80%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   successMessage: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
+  errorMessageContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -150 }, { translateY: -25 }],
+    backgroundColor: '#f44336',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    zIndex: 1,
+  },
+  errorMessage: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
 });

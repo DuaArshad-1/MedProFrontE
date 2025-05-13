@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../config";
 // import { useNavigation } from "@react-navigation/native";
 import { Alert } from "react-native";
+
 const LandingPage = ({ navigation }) => {
   const onMount = async () => {
     try {
@@ -25,7 +26,6 @@ const LandingPage = ({ navigation }) => {
         } 
       }
       else {
-        console.log("Ichi bichi");
         const timer = setTimeout(() => {
           navigation.replace("Login");
         }, 3000);
@@ -33,7 +33,11 @@ const LandingPage = ({ navigation }) => {
       } 
 
     } catch (err) {
-      console.error(err);
+      // console.error(err);
+      Alert.alert(
+        "Error",
+        "An error occurred while verifying your session. Please try again."
+      );
       const timer = setTimeout(() => {
         navigation.replace("Login");
       }, 3000);

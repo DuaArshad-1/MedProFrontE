@@ -3,42 +3,50 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } fr
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
 
+const statusBarHeight = Constants.statusBarHeight;
 
 const DeliveryDetail = () => {
-            const navigation = useNavigation();
+  const navigation = useNavigation();
     
+  const route = useRoute();
+  const order  = route.params;
+  // console.log('Order details:', route.params);
+  let colorPresentState='#F25D29';
+  let colorOtherState='#BFC1BF';
   const trackingSteps = [
     {
-      date: 'Jul\n4',
-      time: '01:23',
       status: 'Delivered!',
-      description: 'Your package has been delivered!',
-      color: '#F25D29',
+      // color:''
     },
     {
-      date: 'Jul\n3',
-      time: '01:23',
+      
       status: 'Out for Delivery',
-      description: 'Your package has been sent for delivery!',
-      color: '#BFC1BF',
+      // color:''
     },
     {
-      date: 'Jul\n2',
-      time: '01:23',
-      status: 'Shipped',
-      description: 'Your package has been shipped!',
-      color: '#BFC1BF',
-    },
-    {
-      date: 'Jul\n1',
-      time: '01:23',
       status: 'Processed and Ready to Ship',
-      description: 'Your package has been processed and is ready for shipping!',
-      color: '#BFC1BF',
+      // color:''
+
     },
   ];
-
+  if (order.deliveryStatus === 'delivered') {
+    trackingSteps[0].color = colorPresentState;
+    trackingSteps[1].color = colorOtherState;
+    trackingSteps[2].color = colorOtherState;
+  }
+  else if (order.deliveryStatus === 'dispatched') {
+    trackingSteps[0].color = colorOtherState;
+    trackingSteps[1].color = colorPresentState;
+    trackingSteps[2].color = colorOtherState;
+  } else if (order.deliveryStatus === 'assigned') {
+    trackingSteps[0].color = colorOtherState;
+    trackingSteps[1].color = colorOtherState;
+    trackingSteps[2].color = colorPresentState;
+  }
+  
   return (
     <SafeAreaView style={styles.container}>
          <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginBottom: 10 }}>
@@ -52,23 +60,33 @@ const DeliveryDetail = () => {
         <View style={styles.statusCard}>
           <View style={styles.statusHeader}>
             <View style={styles.statusDot} />
-            <Text style={styles.statusText}>Delivered!</Text>
+            <Text style={styles.statusText}>{order.deliveryStatus}!</Text>
           </View>
-          <Text style={styles.statusDate}>Package was delivered on</Text>
-          <Text style={styles.statusDateBold}>Thu 4 Jul</Text>
+          {/* <Text style={styles.statusDate}>Package was delivered on</Text>
+          <Text style={styles.statusDateBold}>Thu 4 Jul</Text> */}
         </View>
+         <View style={styles.cardHeader}>
+          <Text style={styles.orderNumber}>Address: {order.item.deliveryAddress}</Text>
 
+        </View>
+        <View style={styles.cardHeader}>
+          <Text style={styles.orderNumber}>Ordered: {order.item.orderDate}</Text>
+        </View>
+        <View style={styles.cardHeader}>
+          <Text style={styles.orderNumber}>No. of Medicines: {order.item.medicines.length}</Text>
+        </View>
         <Text style={styles.trackingText}>
-          Tracking Number <Text style={styles.trackingNumber}>Pk3894923#</Text>
+          Tracking Order 
+          {/* <Text style={styles.trackingNumber}>Pk3894923#</Text> */}
         </Text>
 
         <View style={styles.timelineCard}>
           {trackingSteps.map((step, index) => (
             <View key={index} style={styles.timelineItem}>
-              <View style={styles.timelineDate}>
+              {/* <View style={styles.timelineDate}>
                 <Text style={styles.dateText}>{step.date}</Text>
                 <Text style={styles.timeText}>{step.time}</Text>
-              </View>
+              </View> */}
               <View style={styles.timelineContent}>
                 <View
                   style={[
@@ -80,10 +98,10 @@ const DeliveryDetail = () => {
                   <View style={styles.verticalLine} />
                 )}
                 <View style={styles.timelineDetails}>
-                  <Text style={[styles.statusTitle, step.status === 'Delivered!' && { color: '#F25D29' }]}>
+                  <Text style={[styles.statusTitle]}>
                     {step.status}
                   </Text>
-                  <Text style={styles.statusDesc}>{step.description}</Text>
+                  {/* <Text style={styles.statusDesc}>{step.description}</Text> */}
                 </View>
               </View>
             </View>
@@ -108,7 +126,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#8DA397',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: statusBarHeight + 10,
   },
   header: {
     fontSize: 24,
@@ -157,7 +175,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
     color: '#1E1E1E',
-    fontSize: 15,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 30,
+
   },
   trackingNumber: {
     color: '#F25D29',
@@ -232,6 +253,20 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  orderNumber: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#333',
+  },
+  // dateText: {
+  //   fontSize: 13,
+  //   color: '#222',
+  // },
 });
 
 export default DeliveryDetail;

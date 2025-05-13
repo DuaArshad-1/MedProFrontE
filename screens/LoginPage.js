@@ -7,11 +7,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { BackHandler } from 'react-native';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
+
+const statusBarHeight = Constants.statusBarHeight;
 
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword]       = useState('');
   const navigation = useNavigation();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp(); // Exit the app
+        return true;
+      };
+  
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress
+      );
+  
+      return () => subscription.remove();
+    }, [])
+  );
+  
 
   const handleLogin = async () => {
     try {
@@ -24,12 +47,14 @@ const LoginPage = () => {
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
       // console.log("hehehe", await AsyncStorage.getItem('token'));
+      setIdentifier('');
+      setPassword('');
       navigation.navigate('Main', {
         screen: 'Home',
         params: { user: res.data.user }
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       Alert.alert('Login Failed', err?.response?.data?.message || 'Please check your credentials.');
 
     }
@@ -128,6 +153,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#a2b1a8',
     padding: 50,
+    paddingTop: statusBarHeight + 10,
   },
   title: {
     color: '#fff',

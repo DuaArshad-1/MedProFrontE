@@ -46,8 +46,12 @@ const BottomTabs = () => {
         position: 'absolute',
         bottom: 20,
         left: 20,
-        right: 20
-
+        right: 20,
+        // set the size of text in tabs
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: 'bold'
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />

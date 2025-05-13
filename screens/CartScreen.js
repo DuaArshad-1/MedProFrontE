@@ -8,7 +8,7 @@ import MedImage from '../assets/medpro4.png';
 import Constants from 'expo-constants';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-
+import { Alert } from 'react-native';
 const statusBarHeight = Constants.statusBarHeight;
 
 const CartScreen = () => {
@@ -59,7 +59,8 @@ const CartScreen = () => {
       setCartItems(items);
       calculateTotal(items);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      // console.error('Error fetching cart:', error);
+      Alert.alert('Error', 'Failed to load cart items. Please try again later.');
     }
   };
   
@@ -84,7 +85,8 @@ const CartScreen = () => {
       }
       fetchCart(); // Refresh cart
     } catch (error) {
-      console.error('Error updating/removing cart item:', error);
+      // console.error('Error updating/removing cart item:', error);
+      Alert.alert('Error', 'Failed to update cart item. Please try again later.');
     }
   };
 
@@ -96,7 +98,8 @@ const CartScreen = () => {
       });
       fetchCart(); // Refresh cart
     } catch (error) {
-      console.error('Error removing item from cart:', error);
+      // console.error('Error removing item from cart:', error);
+      Alert.alert('Error', 'Failed to remove item from cart. Please try again later.');
     }
   };
 
@@ -137,7 +140,7 @@ const CartScreen = () => {
       )}
       <FlatList
         data={cartItems}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
@@ -157,7 +160,7 @@ const CartScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#a2b1a8',padding:5, paddingTop: statusBarHeight+10 },
+  container: { flex: 1, backgroundColor: '#a2b1a8',padding:5, paddingTop: statusBarHeight },
   title: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 30 },
   cartLabel: { fontSize: 18, textAlign: 'center', marginBottom: 10 },
   card: {

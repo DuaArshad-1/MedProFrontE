@@ -15,6 +15,8 @@ import axiosInstance from '../config';
 import Constants from 'expo-constants';
 const statusBarHeight = Constants.statusBarHeight;
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+
 const HelpCenter = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -41,8 +43,9 @@ const HelpCenter = () => {
     navigation.navigate('Main',{screen:'Home'});
     }
     catch(error){
-      console.error('Error sending message:', error.message);
-      alert('Failed to send message. Please try again later.');
+      // console.error('Error sending message:', error.message);
+      // alert('Failed to send message. Please try again later.');
+      Alert.alert('Failed to send message. Please try again later.');
     }
   }
   return (

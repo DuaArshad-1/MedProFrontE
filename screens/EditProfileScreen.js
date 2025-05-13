@@ -6,6 +6,10 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import axiosInstance from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
+
+const statusBarHeight = Constants.statusBarHeight;
 const { width, height } = Dimensions.get('window');
 
 export default function EditProfileScreen() {
@@ -16,7 +20,7 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(user.name || '');
   const [email, setEmail] = useState(user.email || '');
   const [phone, setPhone] = useState(user.phone || '');
-  const [address, setAddress] = useState([user.address || '']);
+  const [address, setAddress] = useState([user.address[0] || '']);
   
   const pickImage = async () => {
     let result = await launchImageLibraryAsync({
@@ -44,10 +48,11 @@ export default function EditProfileScreen() {
         },
       });
 
-      console.log(response.data);
+      // console.log(response.data);
       navigation.navigate('Profile');
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
     }
   }
 
@@ -134,6 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#A2B4A9',
     padding: RFPercentage(3),
     alignItems: 'center',
+    paddingTop: statusBarHeight + 10,
   },
   backButton: {
     position: 'absolute',

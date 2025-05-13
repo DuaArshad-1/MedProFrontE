@@ -21,6 +21,7 @@ import SignupPage from './screens/SignupPage';
 import EditProfile from './screens/EditProfileScreen';
 import DeliveryDetail from "./screens/DeliveryDetails";
 import PendingO from "./screens/PendingOrders";
+import PastOrders from "./screens/PastOrders";
 import CategoryScreen from "./screens/CategoryScreen";
 import SubCategoryScreen from "./screens/SubCategory";
 import NotifictationsScreen from "./screens/NotificationsScreen"
@@ -58,6 +59,7 @@ const App = () => {
         <Stack.Screen name="ForgotP" component={ForgotPassword}/>
         <Stack.Screen name="Signup" component={SignupPage}/>
         <Stack.Screen name="PendingOrders" component={PendingO}/>
+        <Stack.Screen name="PastOrders" component={PastOrders}/>
         <Stack.Screen name="Categories" component={CategoryScreen}/>
         <Stack.Screen name="SubCategories" component={SubCategoryScreen}/>
         <Stack.Screen name="DeliveryDetails" component={DeliveryDetail}/>

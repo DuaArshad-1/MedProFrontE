@@ -3,6 +3,10 @@ import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, Flat
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../config';
+import Constants from 'expo-constants';
+import { Alert } from 'react-native';
+
+const statusBarHeight = Constants.statusBarHeight;
 // import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 const Checkout = () => {
   const route = useRoute();
@@ -24,7 +28,8 @@ const Checkout = () => {
         setUser(data.data);
         setAddress(data.data.address[0]);
       } catch (err) {
-        console.error('Error fetching profile:', err);
+        // console.error('Error fetching profile:', err);
+        Alert.alert('Error', 'Failed to fetch profile. Please try again.');
       }
     };
   
@@ -60,7 +65,7 @@ const Checkout = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Order response:', res.data);
+      // console.log('Order response:', res.data);
     
 
       alert('Order placed successfully!');
@@ -68,7 +73,8 @@ const Checkout = () => {
     }
     catch(err){
       console.error('Error placing order:', err);
-      alert('Failed to place order. Please try again.');
+      // alert('Failed to place order. Please try again.');
+      Alert.alert('Error', 'Failed to place order. Please try again.');
     }
   };
 
@@ -84,7 +90,6 @@ const Checkout = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Checkout</Text>
 
         {/* Order Summary with background */}
@@ -92,11 +97,12 @@ const Checkout = () => {
           <Text style={styles.orderTitle}>Order Summary</Text>
 
           {/* If cartItems exists, show them as a list */}
+
           {cartItems ? (
             <FlatList
               data={cartItems}
               renderItem={renderItem}
-              keyExtractor={(item) => item._id}
+              keyExtractor={(item) => item.id}
             />
           ) : (
             // If single item (Buy Now) is passed, show its details
@@ -109,6 +115,7 @@ const Checkout = () => {
             </>
           )}
         </View>
+      <ScrollView contentContainerStyle={styles.content}>
 
         {/* Editable Address Field */}
         <TextInput
@@ -121,7 +128,7 @@ const Checkout = () => {
         {/* Payment Method Selector */}
         <View style={styles.paymentMethodContainer}>
           <Text style={styles.paymentLabel}>Payment Method:</Text>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.paymentMethodBtn,
               paymentMethod === 'Credit Card' && styles.selectedPayment,
@@ -129,7 +136,7 @@ const Checkout = () => {
             onPress={() => setPaymentMethod('Credit Card')}
           >
             <Text style={styles.paymentText}>Credit Card</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={[
               styles.paymentMethodBtn,
@@ -155,6 +162,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ADCBB6',
     padding: 20,
+    paddingTop: statusBarHeight + 20, // Add padding for the status bar
   },
   content: {
     alignItems: 'center',
@@ -164,6 +172,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    alignContent: 'center',
+    textAlign: 'center',
   },
   orderSummary: {
     backgroundColor: '#f1f1f1', // Light background for order summary
