@@ -63,7 +63,7 @@ const SignupPage = () => {
       if (error.response && error.response.status === 400) {
         const fieldErrors = error.response.data.errors || {};
         setErrors(fieldErrors);
-        setErrorMessage("Invalid credentials. Please check your input and try again.");
+        setErrorMessage("Invalid credentials.\n Name:test(no numbers should be there)\n Email:test123@gmail.com\n Phone: 03XXXXXXXXX\n Password:(should be greater than 6 characters) Please check your input and try again.");
 
       } else {
         // console.error("Registration error:", error.message);

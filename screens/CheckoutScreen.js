@@ -54,7 +54,7 @@ const Checkout = () => {
     try{
       const token = await AsyncStorage.getItem('token');
       const med={ id, dosage, quantity };
-      console.log('Medicine:', med);
+      // console.log('Medicine:', med);
       const res= await axiosInstance.post('/orders/', {
         medicines: cartItems?.medicines || [med],
         deliveryAddress: address,
